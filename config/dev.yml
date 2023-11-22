@@ -1,0 +1,18 @@
+app:
+  name: 'skatbot'
+  version: '0.0.1'
+
+tg:
+  apitoken: "6352576956:AAH1icJcTeDiTI7ppqTuSrXZ8QdQ_sZAGYU"
+
+logger:
+  log_level: 'debug'
+  rollbar_env: 'skatbot'
+
+postgres:
+  username: "skatbot"
+  password: "skatbot"
+  host: "localhost"
+  port: "5432"
+  name: "skatbot"
+  pool_max: 10
