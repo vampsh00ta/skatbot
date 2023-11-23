@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	"skat_bot/config"
 	handlers "skat_bot/internal/handlers"
@@ -29,8 +30,8 @@ func New(cfg *config.Config) {
 	}
 	rep := repository.New(db)
 	//tx := rep.GetDb()
-	//a, err := rep.GetCurrentDtpByPersonId(tx, 5)
-	//fmt.Println(a, err)
+	a, err := rep.GetAllSubjectsOrderByName(ctx, true)
+	fmt.Println(a, err)
 	auth := &authentication.AuthMap{DB: make(map[int64]*authentication.User)}
 	auth.LogIn(564764193, 955, 2)
 

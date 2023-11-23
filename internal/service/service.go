@@ -5,6 +5,7 @@ import (
 )
 
 type Service interface {
+	Subject
 }
 type service struct {
 	rep rep.Repository

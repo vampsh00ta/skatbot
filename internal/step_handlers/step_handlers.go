@@ -7,13 +7,13 @@ import (
 )
 
 type StepHandler struct {
-	s    service.Service
+	S    service.Service
 	log  *log.Logger
 	Auth auth.Auth
 }
 
-func New(s service.Service, logger *log.Logger, auth auth.Auth) *StepHandler {
-	return &StepHandler{
+func New(s service.Service, logger *log.Logger, auth auth.Auth) StepHandler {
+	return StepHandler{
 		s,
 		logger,
 		auth,

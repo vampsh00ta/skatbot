@@ -1,8 +1,12 @@
 package psql
 
-import "skat_bot/pkg/client"
+import (
+	"skat_bot/pkg/client"
+)
 
 type Repository interface {
+	Subject
+	Variant
 }
 
 type Db struct {

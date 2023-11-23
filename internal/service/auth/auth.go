@@ -1,12 +1,5 @@
 package auth
 
-import (
-	"TgDbMai/internal/keyboard"
-	"context"
-	tgbotapi "github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
-)
-
 const (
 	Anyone = iota
 	Gashnik
@@ -20,7 +13,7 @@ type Auth interface {
 	GetUser(chatid int64) *User
 	GetAccess(chatid int64) int
 	GetTgIdsByPersonId(personId ...int) map[int]int64
-	AuthMiddleware(privateCommand ...string) func(next tgbotapi.HandlerFunc) tgbotapi.HandlerFunc
+	//AuthMiddleware(privateCommand ...string) func(next tgbotapi.HandlerFunc) tgbotapi.HandlerFunc
 }
 
 type AuthMap struct {
@@ -67,35 +60,35 @@ func (auth *AuthMap) GetTgIdsByPersonId(personId ...int) map[int]int64 {
 	return res
 }
 
-func (auth *AuthMap) AuthMiddleware(privateCommand ...string) func(next tgbotapi.HandlerFunc) tgbotapi.HandlerFunc {
-	allCommands := make(map[string]int)
-
-	allCommands[keyboard.AddParticipantDtpCommand] = Gashnik
-	allCommands[keyboard.CheckVehicleCommand] = Gashnik
-
-	return func(next tgbotapi.HandlerFunc) tgbotapi.HandlerFunc {
-		return func(ctx context.Context, bot *tgbotapi.Bot, update *models.Update) {
-			msg := update.Message.Text
-			me, err := bot.GetMe(ctx)
-			userTgId := me.ID
-			if err != nil {
-				return
-			}
-			for command, access := range allCommands {
-				if msg == command && (!auth.IsLogged(userTgId) || auth.GetAccess(userTgId) < access) {
-					bot.SendMessage(ctx, &tgbotapi.SendMessageParams{
-						ChatID: update.Message.Chat.ID,
-						Text:   "Ввойдите в аккаунт",
-					})
-					bot.SendMessage(ctx, &tgbotapi.SendMessageParams{
-						ChatID:      update.Message.Chat.ID,
-						ReplyMarkup: keyboard.Main(),
-					})
-					return
-				}
-			}
-
-			next(ctx, bot, update)
-		}
-	}
-}
+//func (auth *AuthMap) AuthMiddleware(privateCommand ...string) func(next tgbotapi.HandlerFunc) tgbotapi.HandlerFunc {
+//	allCommands := make(map[string]int)
+//
+//	allCommands[keyboard.AddParticipantDtpCommand] = Gashnik
+//	allCommands[keyboard.CheckVehicleCommand] = Gashnik
+//
+//	return func(next tgbotapi.HandlerFunc) tgbotapi.HandlerFunc {
+//		return func(ctx context.Context, bot *tgbotapi.Bot, update *models.Update) {
+//			msg := update.Message.Text
+//			me, err := bot.GetMe(ctx)
+//			userTgId := me.ID
+//			if err != nil {
+//				return
+//			}
+//			for command, access := range allCommands {
+//				if msg == command && (!auth.IsLogged(userTgId) || auth.GetAccess(userTgId) < access) {
+//					bot.SendMessage(ctx, &tgbotapi.SendMessageParams{
+//						ChatID: update.Message.Chat.ID,
+//						Text:   "Ввойдите в аккаунт",
+//					})
+//					bot.SendMessage(ctx, &tgbotapi.SendMessageParams{
+//						ChatID:      update.Message.Chat.ID,
+//						ReplyMarkup: keyboard.Main(),
+//					})
+//					return
+//				}
+//			}
+//
+//			next(ctx, bot, update)
+//		}
+//	}
+//}

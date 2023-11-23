@@ -9,17 +9,15 @@ import (
 )
 
 type BotHandler struct {
-	step *step_handlers.StepHandler
-	back *BackSession
+	step step_handlers.StepHandler
+	back BackSession
 }
 
-func New(bot *tgbotapi.Bot, step *step_handlers.StepHandler) {
-	back := &BackSession{user: make(map[int64]*Back)}
+func New(bot *tgbotapi.Bot, step step_handlers.StepHandler) {
+	back := BackSession{user: make(map[int64]Back)}
 	botHandler := &BotHandler{step, back}
-	NewMain(bot, botHandler)
 	NewGaishnik(bot, botHandler)
-	NewGai(bot, botHandler)
-	NewCheckVehicle(bot, botHandler)
+	botHandler = botHandler
 	bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
 		"/start", tgbotapi.MatchTypeExact, Start())
 	bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,

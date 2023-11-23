@@ -5,6 +5,8 @@ import (
 )
 
 const (
+	GetSkatCommand    = "Получить скат"
+	AddSkatCommand    = "Добавить скат"
 	GaiCommand        = "ГАИ"
 	GaishnikCommand   = "Сотрудник ГИБДД"
 	MainСommand       = "Главное меню"
@@ -16,9 +18,9 @@ func Main() *models.ReplyKeyboardMarkup {
 	kb := &models.ReplyKeyboardMarkup{
 		Keyboard: [][]models.KeyboardButton{
 			{
-				{Text: GaiCommand},
+				{Text: GetSkatCommand},
 			}, {
-				{Text: GaishnikCommand},
+				{Text: AddSkatCommand},
 			},
 		},
 	}

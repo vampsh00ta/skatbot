@@ -12,17 +12,17 @@ type Back struct {
 	name     string
 }
 type BackSession struct {
-	user map[int64]*Back
+	user map[int64]Back
 }
 
-func (b BackSession) Get(userId int64) *Back {
+func (b BackSession) Get(userId int64) Back {
 	_, ok := b.user[userId]
 	if !ok {
-		return new(Back)
+		return Back{}
 	}
 	return b.user[userId]
 }
-func (b BackSession) Set(userId int64, back *Back) {
+func (b BackSession) Set(userId int64, back Back) {
 	b.user[userId] = back
 }
 
