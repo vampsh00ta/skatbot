@@ -8,6 +8,7 @@ type Repository interface {
 	Subject
 	Semester
 	Variant
+	Institute
 }
 
 type Db struct {

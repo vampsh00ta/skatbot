@@ -45,7 +45,7 @@ func SubjectNames(subjects []models.Subject) *tgmodels.ReplyKeyboardMarkup {
 	return kb
 }
 
-func GetSkatSemester(sems []int) *tgmodels.ReplyKeyboardMarkup {
+func Ints(sems []int) *tgmodels.ReplyKeyboardMarkup {
 
 	kb := &tgmodels.ReplyKeyboardMarkup{
 		Keyboard: [][]tgmodels.KeyboardButton{},

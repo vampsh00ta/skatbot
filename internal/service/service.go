@@ -8,6 +8,7 @@ type Service interface {
 	Subject
 	Variant
 	Semester
+	Institute
 }
 type service struct {
 	rep rep.Repository

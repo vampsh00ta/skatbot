@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -53,7 +54,7 @@ func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "Выбери семестр",
-		ReplyMarkup: keyboard.GetSkatSemester(sems),
+		ReplyMarkup: keyboard.Ints(sems),
 	})
 	if err != nil {
 		h.log.Error(err)
@@ -109,7 +110,46 @@ func (h BotHandler) addSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 		SendError(ctx, b, update)
 		return
 	}
-	subject, err := h.service.GetSubject(ctx, currSubject)
+
+	insts, err := h.service.GetAllInstitutes(ctx, true)
+	fmt.Println(insts)
+	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+		ChatID:      update.Message.Chat.ID,
+		Text:        "Выбери институт",
+		ReplyMarkup: keyboard.Ints(insts),
+	})
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		return
+	}
+
+	b.RegisterStepHandler(ctx, update, h.addSkatInstitute, currSubject)
+}
+func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+	var err error
+	data := b.GetStepData(ctx, update)
+	currSubject := data.(models.Subject)
+	institute, err := strconv.Atoi(update.Message.Text)
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		b.UnregisterStepHandler(ctx, update)
+		return
+	}
+
+	currSubject.InstistuteNum = institute
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		return
+	}
+	subject, err := h.service.AddOrGetSubject(ctx, currSubject)
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		return
+	}
 	currSubject.Variants = []models.Variant{
 		models.Variant{SubjectId: subject.Id},
 	}
@@ -127,6 +167,7 @@ func (h BotHandler) addSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 
 	b.RegisterStepHandler(ctx, update, h.addSkatWorkType, currSubject)
 }
+
 func (h BotHandler) addSkatWorkType(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
 	data := b.GetStepData(ctx, update)
@@ -170,6 +211,7 @@ func (h BotHandler) addSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 }
 func (h BotHandler) addSkatGrade(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
+	defer b.UnregisterStepHandler(ctx, update)
 	data := b.GetStepData(ctx, update)
 	currSubject := data.(models.Subject)
 	if update.Message.Text != "Пропуск" {
@@ -184,7 +226,11 @@ func (h BotHandler) addSkatGrade(ctx context.Context, b *tgbotapi.Bot, update *t
 	}
 
 	currSubject.Variants[0].CreationTime = time.Now()
-
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		return
+	}
 	if err := h.service.AddVariant(ctx, currSubject.Variants[0]); err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)

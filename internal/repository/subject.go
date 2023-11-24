@@ -16,13 +16,14 @@ type Subject interface {
 	GetAllSubjectNames(ctx context.Context, asc bool) ([]string, error)
 	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]string, error)
 	GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.SubjectType, error)
-	GetUniqueInstitutes(ctx context.Context, subjectName string, sem int, subjectType string, asc bool) ([]int, error)
+
+	//AddOrGetSubject(ctx context.Context, subject models.Subject) ([]int, error)
 }
 
 func (d Db) AddSubject(ctx context.Context, subject models.Subject) (int, error) {
 	var err error
 	//
-	q := `insert into active_subject (name,semester,instistute_num,type_name)
+	q := `insert into active_subject (name,semester_number,instistute_num,type_name)
 			values ($1,$2,$3,$4) returning id 
 		 `
 
@@ -172,23 +173,4 @@ func (d Db) GetAllSubjectNames(ctx context.Context, asc bool) ([]string, error) 
 	}
 
 	return subjectsNames, nil
-}
-func (d Db) GetUniqueInstitutes(ctx context.Context, subjectName string, sem int, subjectType string, asc bool) ([]int, error) {
-	var err error
-	//
-	q := `select instistute_num from active_subject where name = $1 and semester_number = $2 and type_name = $3 order by type_name
-		 `
-	if !asc {
-		q += " desc"
-	}
-	rows, err := d.client.Query(ctx, q, subjectName, sem, subjectType)
-	if err != nil {
-		return nil, err
-	}
-	insts, err := pgx.CollectRows(rows, pgx.RowTo[int])
-	if err != nil {
-		return nil, err
-	}
-
-	return insts, nil
 }

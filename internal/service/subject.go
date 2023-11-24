@@ -14,6 +14,8 @@ type Subject interface {
 	GetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]string, error)
 	GetUniqueInstitutes(ctx context.Context, subjectName string, sem int, subjectType string, asc bool) ([]int, error)
+
+	AddOrGetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 }
 
 func (s service) GetAllSubjectsOrderByName(ctx context.Context, asc bool) ([]models.Subject, error) {
@@ -64,10 +66,16 @@ func (s service) GetUniqueSubjectTypes(ctx context.Context, subjectName string, 
 	}
 	return types, nil
 }
-func (s service) GetUniqueInstitutes(ctx context.Context, subjectName string, sem int, subjectType string, asc bool) ([]int, error) {
-	insts, err := s.rep.GetUniqueInstitutes(ctx, subjectName, sem, subjectType, asc)
-	if err != nil {
-		return nil, err
+
+func (s service) AddOrGetSubject(ctx context.Context, subject models.Subject) (models.Subject, error) {
+	subj, err := s.rep.GetSubject(ctx, subject)
+	if err != nil && err.Error() != "no rows in result set" {
+		return models.Subject{}, err
 	}
-	return insts, nil
+	id, err := s.rep.AddSubject(ctx, subject)
+	if err != nil {
+		return models.Subject{}, err
+	}
+	subj.Id = id
+	return subj, nil
 }

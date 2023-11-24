@@ -28,7 +28,7 @@ func (d Db) AddVariant(ctx context.Context, variant models.Variant) (int, error)
 	var err error
 	//
 	fmt.Println(variant)
-	q := `insert into variant (subject_id,name,num,grade,creation_time,type)
+	q := `insert into variant (subject_id,name,num,grade,creation_time,type_name)
 			values ($1,$2,$3,$4,$5,$6) returning id 
 		 `
 	//loc, _ := time.LoadLocation("Europe/Moscow")

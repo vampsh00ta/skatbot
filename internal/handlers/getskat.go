@@ -65,7 +65,7 @@ func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "Выбери семестр",
-		ReplyMarkup: keyboard.GetSkatSemester(sems),
+		ReplyMarkup: keyboard.Ints(sems),
 	})
 	if err != nil {
 		h.log.Error(err)
@@ -128,7 +128,7 @@ func (h BotHandler) getSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "Выбери институт",
-		ReplyMarkup: keyboard.GetSkatSemester(insts),
+		ReplyMarkup: keyboard.Ints(insts),
 	})
 
 	if err != nil {
