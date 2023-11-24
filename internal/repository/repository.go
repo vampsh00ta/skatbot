@@ -6,6 +6,7 @@ import (
 
 type Repository interface {
 	Subject
+	Semester
 	Variant
 }
 

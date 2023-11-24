@@ -2,6 +2,7 @@ package psql
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"skat_bot/internal/repository/models"
 )
@@ -10,7 +11,7 @@ type Variant interface {
 	AddVariant(ctx context.Context, variant models.Variant) (int, error)
 	DeleteVariantById(ctx context.Context, variantId int) error
 	GetVariantsBySubjectId(ctx context.Context, subjectId int) ([]models.Variant, error)
-	GetVariantTypeByName(ctx context.Context, variantType string) (models.VariantType, error)
+	GetVariantTypes(ctx context.Context) ([]models.VariantType, error)
 }
 
 func (d Db) GetVariantTypeByName(ctx context.Context, variantT string) (models.VariantType, error) {
@@ -26,7 +27,8 @@ func (d Db) GetVariantTypeByName(ctx context.Context, variantT string) (models.V
 func (d Db) AddVariant(ctx context.Context, variant models.Variant) (int, error) {
 	var err error
 	//
-	q := `insert into variant (subject_id,name,num_from,grade,creation_time,type)
+	fmt.Println(variant)
+	q := `insert into variant (subject_id,name,num,grade,creation_time,type)
 			values ($1,$2,$3,$4,$5,$6) returning id 
 		 `
 	//loc, _ := time.LoadLocation("Europe/Moscow")
@@ -41,7 +43,7 @@ func (d Db) AddVariant(ctx context.Context, variant models.Variant) (int, error)
 		variant.Num,
 		variant.Grade,
 		variant.CreationTime,
-		variant.Type).Scan(&variant.Id); err != nil {
+		variant.TypeName).Scan(&variant.Id); err != nil {
 
 		return 0, err
 	}
@@ -56,10 +58,8 @@ func (d Db) DeleteVariantById(ctx context.Context, variantId int) error {
 func (d Db) GetVariantsBySubjectId(ctx context.Context, subjectId int) ([]models.Variant, error) {
 	var err error
 	//
-	q := `select variant.*,variant.name as type_str 
-		from (select * from  variant where id = $1) as variant
-		join variant_type on variant_type.id = variant.type
-
+	fmt.Println(subjectId)
+	q := `select * from  variant where subject_id = $1
 		 `
 
 	rows, err := d.client.Query(ctx, q, subjectId)
@@ -72,4 +72,20 @@ func (d Db) GetVariantsBySubjectId(ctx context.Context, subjectId int) ([]models
 	}
 
 	return variants, nil
+}
+func (d Db) GetVariantTypes(ctx context.Context) ([]models.VariantType, error) {
+	var err error
+	//
+	q := `select * from variant_type 
+		 `
+	rows, err := d.client.Query(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+	variantTypes, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.VariantType])
+	if err != nil {
+		return nil, err
+	}
+
+	return variantTypes, nil
 }

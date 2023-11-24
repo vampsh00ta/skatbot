@@ -1,4 +1,4 @@
-package query_handlers
+package handlers
 
 import (
 	"context"
@@ -40,4 +40,12 @@ func (b *BackSession) undo() tgbotapi.HandlerFunc {
 func (back *Back) Exit() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, bot *tgbotapi.Bot, update *models.Update) {
 	}
+}
+
+func SendMessage(ctx context.Context, b *tgbotapi.Bot, update *models.Update, text string) error {
+	_, err := b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+		ChatID: update.Message.Chat.ID,
+		Text:   text,
+	})
+	return err
 }

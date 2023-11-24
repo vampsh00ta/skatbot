@@ -6,6 +6,8 @@ import (
 
 type Service interface {
 	Subject
+	Variant
+	Semester
 }
 type service struct {
 	rep rep.Repository
