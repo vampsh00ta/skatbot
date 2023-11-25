@@ -89,7 +89,7 @@ func VariantsNums(variants []models.Variant) *tgmodels.ReplyKeyboardMarkup {
 	for _, variant := range variants {
 		res := []tgmodels.KeyboardButton{
 			{
-				Text: strconv.Itoa(variant.Num),
+				Text: strconv.Itoa(*variant.Num),
 			},
 		}
 		kb.Keyboard = append(kb.Keyboard, res)

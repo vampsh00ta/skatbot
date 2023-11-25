@@ -156,7 +156,7 @@ func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 	variantTypes, err := h.service.GetVariantTypes(ctx)
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
-		Text:        "Введи тип варианта",
+		Text:        "Введи тип варианта ",
 		ReplyMarkup: keyboard.VariantsTypes(variantTypes),
 	})
 	if err != nil {
@@ -178,7 +178,7 @@ func (h BotHandler) addSkatWorkType(ctx context.Context, b *tgbotapi.Bot, update
 
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
-		Text:        "Введи вариант",
+		Text:        "Введи вариант или нажми пропуск",
 		ReplyMarkup: keyboard.Empty(),
 	})
 	if err != nil {
@@ -193,14 +193,44 @@ func (h BotHandler) addSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 	var err error
 	data := b.GetStepData(ctx, update)
 	currSubject := data.(models.Subject)
-	variant, err := strconv.Atoi(update.Message.Text)
+	if update.Message.Text != "Пропуск" {
+		variant, err := strconv.Atoi(update.Message.Text)
+
+		if err != nil {
+			h.log.Error(err)
+			SendError(ctx, b, update)
+			b.UnregisterStepHandler(ctx, update)
+			return
+		}
+		currSubject.Variants[0].Num = &variant
+	}
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
 		b.UnregisterStepHandler(ctx, update)
 		return
 	}
-	currSubject.Variants[0].Num = variant
+	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+		ChatID:      update.Message.Chat.ID,
+		Text:        "Введи описание,чтобы другим было легче найти нужный файл",
+		ReplyMarkup: keyboard.Pass(),
+	})
+	b.RegisterStepHandler(ctx, update, h.addSkatDesc, currSubject)
+
+}
+
+func (h BotHandler) addSkatDesc(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+	var err error
+	data := b.GetStepData(ctx, update)
+	currSubject := data.(models.Subject)
+	desc := update.Message.Text
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		b.UnregisterStepHandler(ctx, update)
+		return
+	}
+	currSubject.Variants[0].Name = desc
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "Введи оценку или нажми пропуск",
