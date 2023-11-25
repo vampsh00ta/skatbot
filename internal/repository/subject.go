@@ -15,7 +15,6 @@ type Subject interface {
 	GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Subject, error)
 	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error)
 	GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject, error)
-
 	//AddOrGetSubject(ctx context.Context, subject models.Subject) ([]int, error)
 }
 

@@ -14,7 +14,7 @@ type Subject interface {
 	GetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error)
 	GetUniqueInstitutes(ctx context.Context, subjectName string, sem int, subjectType string, asc bool) ([]int, error)
-
+	CheckSubjectName(ctx context.Context, subjectName string) (bool, error)
 	AddOrGetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 }
 
@@ -81,4 +81,17 @@ func (s service) AddOrGetSubject(ctx context.Context, subject models.Subject) (m
 		return models.Subject{}, err
 	}
 	return newSubject, nil
+}
+func (s service) CheckSubjectName(ctx context.Context, subjectName string) (bool, error) {
+	allSubjects, err := s.rep.GetAllSubjectNames(ctx, true)
+	if err != nil {
+		return false, nil
+	}
+	for _, subject := range allSubjects {
+		if subject.Name == subjectName {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

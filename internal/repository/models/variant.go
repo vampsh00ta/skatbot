@@ -11,6 +11,7 @@ type Variant struct {
 	CreationTime time.Time `json:"creation_time" db:"creation_time"`
 	TypeName     string    `json:"type_name" db:"type_name"`
 	FileId       string    `json:"file_id" db:"file_id"`
+	FilePath     string    `json:"file_path" db:"file_path"`
 }
 
 type VariantType struct {

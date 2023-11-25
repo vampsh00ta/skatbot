@@ -43,8 +43,21 @@ func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	var err error
 	data := b.GetStepData(ctx, update)
 	currSubject := data.(models.Subject)
-	currSubject.Name = update.Message.Text
-
+	subjectName := update.Message.Text
+	currSubject.Name = subjectName
+	ok, err := h.service.CheckSubjectName(ctx, subjectName)
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		b.UnregisterStepHandler(ctx, update)
+		return
+	}
+	if !ok {
+		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+			ChatID: update.Message.Chat.ID,
+			Text:   "Такой предмент отсутствует",
+		})
+	}
 	sems, err := h.service.GetAllSemesters(ctx, true)
 	if err != nil {
 		h.log.Error(err)
