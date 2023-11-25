@@ -11,13 +11,30 @@ type Variant interface {
 	DeleteVariantById(ctx context.Context, variantId int) error
 	GetVariantsBySubjectId(ctx context.Context, subjectId int) ([]models.Variant, error)
 	GetVariantTypes(ctx context.Context) ([]models.Variant, error)
+	GetVariantbyId(ctx context.Context, id int) (models.Variant, error)
 }
 
+func (d Db) GetVariantbyId(ctx context.Context, id int) (models.Variant, error) {
+	var err error
+	//
+	q := `select * from variant  where id = $1
+		 `
+	rows, err := d.client.Query(ctx, q, id)
+	if err != nil {
+		return models.Variant{}, err
+	}
+	variant, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Variant])
+	if err != nil {
+		return models.Variant{}, err
+	}
+
+	return variant[0], nil
+}
 func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Variant, error) {
 	var err error
 	//
-	q := `insert into variant (subject_id,name,num,grade,creation_time,type_name,file_id)
-			values ($1,$2,$3,$4,$5,$6,$7) returning id 
+	q := `insert into variant (subject_id,name,num,grade,creation_time,type_name,file_id,file_path)
+			values ($1,$2,$3,$4,$5,$6,$7,$8) returning id 
 		 `
 	//loc, _ := time.LoadLocation("Europe/Moscow")
 	//t := time.Now().In(loc)
@@ -32,7 +49,8 @@ func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Vari
 		variant.Grade,
 		variant.CreationTime,
 		variant.TypeName,
-		variant.FileId).Scan(&variant.Id); err != nil {
+		variant.FileId,
+		variant.FilePath).Scan(&variant.Id); err != nil {
 
 		return models.Variant{}, err
 	}

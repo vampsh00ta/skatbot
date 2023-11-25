@@ -12,6 +12,7 @@ import (
 
 func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+
 		subjects, err := h.service.GetUniqueSubjects(ctx, true)
 		if err != nil {
 			h.log.Error(err)
@@ -161,8 +162,13 @@ func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
-		Text:        "Варианты",
+		Text:        "Доступные файлы",
 		ReplyMarkup: response.Variants(variants),
+	})
+	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+		ChatID:      update.Message.Chat.ID,
+		Text:        "Ты в главном меню",
+		ReplyMarkup: keyboard.Main(),
 	})
 	if err != nil {
 		h.log.Error(err)
@@ -190,7 +196,7 @@ func (h BotHandler) getSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
-		Text:        "Твой файл",
+		Text:        "Доступные файлы",
 		ReplyMarkup: keyboard.Main(),
 	})
 	if err != nil {

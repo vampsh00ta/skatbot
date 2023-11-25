@@ -11,9 +11,8 @@ func Variants(variants []models.Variant) *tgmodels.InlineKeyboardMarkup {
 		InlineKeyboard: [][]tgmodels.InlineKeyboardButton{
 			{
 				{Text: "Описание", CallbackData: "pass"},
-				{Text: "Номер варианта", CallbackData: "pass"},
-				{Text: "Скачать pdf", CallbackData: "pass"},
-				{Text: "Скачать word", CallbackData: "pass"},
+				{Text: "Вариант", CallbackData: "pass"},
+				{Text: "Скачать файлы", CallbackData: "variant_all_" + strconv.Itoa(variants[0].SubjectId)},
 			},
 		},
 	}
@@ -39,10 +38,7 @@ func Variants(variants []models.Variant) *tgmodels.InlineKeyboardMarkup {
 				Text: ifNilNum(variant.Num), CallbackData: "pass",
 			},
 			{
-				Text: "pdf", CallbackData: "pass",
-			},
-			{
-				Text: "docx", CallbackData: "pass",
+				Text: "⬇️", CallbackData: "variant_" + strconv.Itoa(variant.Id),
 			},
 		}
 		kb.InlineKeyboard = append(kb.InlineKeyboard, res)

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -12,6 +13,7 @@ import (
 
 func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+
 		subjects, err := h.service.GetAllSubjectNames(ctx, true)
 		if err != nil {
 			h.log.Error(err)
@@ -317,7 +319,8 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 	currSubject.Variants[0].CreationTime = time.Now()
 	currSubject.Variants[0].SubjectId = subject.Id
 	currSubject.Variants[0].FileId = update.Message.Document.FileID
-
+	currSubject.Variants[0].FilePath = update.Message.Document.FileName
+	fmt.Println(currSubject)
 	if err := h.service.AddVariant(ctx, currSubject.Variants[0]); err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
