@@ -155,6 +155,7 @@ func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 	currSubject.InstistuteNum = inst
 
 	variants, err := h.service.GetVariantsBySubject(ctx, currSubject)
+	fmt.Println(variants, "asdasd")
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)

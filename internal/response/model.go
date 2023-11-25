@@ -17,20 +17,26 @@ func Variants(variants []models.Variant) *tgmodels.InlineKeyboardMarkup {
 			},
 		},
 	}
-	ifNil := func(num *int) string {
+	ifNilNum := func(num *int) string {
 		if num == nil {
-			return "Не уканазан"
+			return "Пусто"
 		}
 		return strconv.Itoa(*num)
+	}
+	ifNilStr := func(str string) string {
+		if str == "" {
+			return "Пусто"
+		}
+		return str
 	}
 	for _, variant := range variants {
 		res := []tgmodels.InlineKeyboardButton{
 
 			{
-				Text: variant.Name, CallbackData: "pass",
+				Text: ifNilStr(variant.Name), CallbackData: "pass",
 			},
 			{
-				Text: ifNil(variant.Num), CallbackData: "pass",
+				Text: ifNilNum(variant.Num), CallbackData: "pass",
 			},
 			{
 				Text: "pdf", CallbackData: "pass",

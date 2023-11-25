@@ -144,14 +144,9 @@ func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 		SendError(ctx, b, update)
 		return
 	}
-	subject, err := h.service.AddOrGetSubject(ctx, currSubject)
-	if err != nil {
-		h.log.Error(err)
-		SendError(ctx, b, update)
-		return
-	}
+
 	currSubject.Variants = []models.Variant{
-		models.Variant{SubjectId: subject.Id},
+		models.Variant{},
 	}
 	variantTypes, err := h.service.GetVariantTypes(ctx)
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
@@ -255,7 +250,14 @@ func (h BotHandler) addSkatGrade(ctx context.Context, b *tgbotapi.Bot, update *t
 		currSubject.Variants[0].Grade = &grade
 	}
 
+	subject, err := h.service.AddOrGetSubject(ctx, currSubject)
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		return
+	}
 	currSubject.Variants[0].CreationTime = time.Now()
+	currSubject.Variants[0].SubjectId = subject.Id
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
