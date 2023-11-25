@@ -2,25 +2,24 @@ package psql
 
 import (
 	"context"
-	"fmt"
 	"github.com/jackc/pgx/v5"
 	"skat_bot/internal/repository/models"
 )
 
 type Subject interface {
-	AddSubject(ctx context.Context, subject models.Subject) (int, error)
+	AddSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 	GetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 	GetAllSubjects(ctx context.Context) ([]models.Subject, error)
 	GetUniqueSubjects(ctx context.Context, asc bool) ([]models.Subject, error)
 	GetSubjectsByName(ctx context.Context, name string, asc bool) ([]models.Subject, error)
-	GetAllSubjectNames(ctx context.Context, asc bool) ([]string, error)
-	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]string, error)
-	GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.SubjectType, error)
+	GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Subject, error)
+	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error)
+	GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject, error)
 
 	//AddOrGetSubject(ctx context.Context, subject models.Subject) ([]int, error)
 }
 
-func (d Db) AddSubject(ctx context.Context, subject models.Subject) (int, error) {
+func (d Db) AddSubject(ctx context.Context, subject models.Subject) (models.Subject, error) {
 	var err error
 	//
 	q := `insert into active_subject (name,semester_number,instistute_num,type_name)
@@ -34,9 +33,9 @@ func (d Db) AddSubject(ctx context.Context, subject models.Subject) (int, error)
 
 		subject.TypeName).Scan(&subject.Id); err != nil {
 
-		return 0, err
+		return models.Subject{}, err
 	}
-	return subject.Id, nil
+	return subject, nil
 
 }
 
@@ -50,7 +49,7 @@ func (d Db) GetAllSubjects(ctx context.Context) ([]models.Subject, error) {
 	if err != nil {
 		return nil, err
 	}
-	subjects, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.Subject])
+	subjects, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Subject])
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +74,7 @@ select id,name,semester_number,instistute_num,type_name from
 	if err != nil {
 		return nil, err
 	}
-	subjects, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.Subject])
+	subjects, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Subject])
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +94,7 @@ func (d Db) GetSubjectsByName(ctx context.Context, name string, asc bool) ([]mod
 	if err != nil {
 		return nil, err
 	}
-	subjects, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.Subject])
+	subjects, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Subject])
 	if err != nil {
 		return nil, err
 	}
@@ -103,10 +102,10 @@ func (d Db) GetSubjectsByName(ctx context.Context, name string, asc bool) ([]mod
 	return subjects, nil
 }
 
-func (d Db) GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.SubjectType, error) {
+func (d Db) GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject, error) {
 	var err error
 	//
-	q := `select   * from  subject_type order by name
+	q := `select   name as type_name from  subject_type order by name
 		 `
 	if !asc {
 		q += " desc "
@@ -115,14 +114,14 @@ func (d Db) GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.SubjectT
 	if err != nil {
 		return nil, err
 	}
-	subjects, err := pgx.CollectRows(rows, pgx.RowToStructByName[models.SubjectType])
+	subjects, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Subject])
 	if err != nil {
 		return nil, err
 	}
 
 	return subjects, nil
 }
-func (d Db) GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]string, error) {
+func (d Db) GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error) {
 	var err error
 	//
 	q := `select type_name from active_subject where name = $1 and semester_number = $2 order by type_name
@@ -134,7 +133,7 @@ func (d Db) GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem i
 	if err != nil {
 		return nil, err
 	}
-	types, err := pgx.CollectRows(rows, pgx.RowTo[string])
+	types, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Subject])
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +143,6 @@ func (d Db) GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem i
 
 func (d Db) GetSubject(ctx context.Context, subject models.Subject) (models.Subject, error) {
 	//
-	fmt.Println(subject.Name, subject.Semester, subject.TypeName, subject.InstistuteNum)
 	q := `select   id from  active_subject 
             where name = $1 and semester_number = $2 and type_name = $3 and instistute_num = $4
 		 `
@@ -155,22 +153,21 @@ func (d Db) GetSubject(ctx context.Context, subject models.Subject) (models.Subj
 
 	return subject, nil
 }
-func (d Db) GetAllSubjectNames(ctx context.Context, asc bool) ([]string, error) {
+func (d Db) GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Subject, error) {
 	var err error
 	//
-	q := `select   name from  subject 
+	q := `select   name   from  subject  order by name
 		 `
-	if asc {
-		q += " order by name "
+	if !asc {
+		q += "  desc "
 	}
 	rows, err := d.client.Query(ctx, q)
 	if err != nil {
 		return nil, err
 	}
-	subjectsNames, err := pgx.CollectRows(rows, pgx.RowTo[string])
+	subjectsNames, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Subject])
 	if err != nil {
 		return nil, err
 	}
-
 	return subjectsNames, nil
 }

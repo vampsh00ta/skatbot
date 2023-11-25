@@ -1,22 +1,18 @@
 package keyboard
 
 import (
-	"github.com/go-telegram/bot/models"
+	tgmodels "github.com/go-telegram/bot/models"
 )
 
 const (
-	GetSkatCommand    = "Получить скат"
-	AddSkatCommand    = "Добавить скат"
-	GaiCommand        = "ГАИ"
-	GaishnikCommand   = "Сотрудник ГИБДД"
-	MainСommand       = "Главное меню"
-	SpravkiCommand    = "Справки"
-	MasterDataCommand = "Master Data"
+	GetSkatCommand = "Получить скат"
+	AddSkatCommand = "Добавить скат"
+	BackCommand    = "Назад"
 )
 
-func Main() *models.ReplyKeyboardMarkup {
-	kb := &models.ReplyKeyboardMarkup{
-		Keyboard: [][]models.KeyboardButton{
+func Main() *tgmodels.ReplyKeyboardMarkup {
+	kb := &tgmodels.ReplyKeyboardMarkup{
+		Keyboard: [][]tgmodels.KeyboardButton{
 			{
 				{Text: GetSkatCommand},
 			}, {
@@ -24,5 +20,21 @@ func Main() *models.ReplyKeyboardMarkup {
 			},
 		},
 	}
+	return kb
+}
+
+func Pass() *tgmodels.ReplyKeyboardMarkup {
+
+	kb := &tgmodels.ReplyKeyboardMarkup{
+		Keyboard: [][]tgmodels.KeyboardButton{
+			{
+				{Text: BackCommand},
+			},
+			{
+				{Text: "Пропуск"},
+			},
+		},
+	}
+
 	return kb
 }

@@ -9,7 +9,7 @@ import (
 type Variant interface {
 	AddVariant(ctx context.Context, variant models.Variant) error
 	GetVariantsBySubject(ctx context.Context, subject models.Subject) ([]models.Variant, error)
-	GetVariantTypes(ctx context.Context) ([]models.VariantType, error)
+	GetVariantTypes(ctx context.Context) ([]models.Variant, error)
 }
 
 func (s service) AddVariant(ctx context.Context, variant models.Variant) error {
@@ -34,7 +34,7 @@ func (s service) GetVariantsBySubject(ctx context.Context, subject models.Subjec
 	return variants, nil
 }
 
-func (s service) GetVariantTypes(ctx context.Context) ([]models.VariantType, error) {
+func (s service) GetVariantTypes(ctx context.Context) ([]models.Variant, error) {
 	variantTypes, err := s.rep.GetVariantTypes(ctx)
 	if err != nil {
 		return nil, err

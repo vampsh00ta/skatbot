@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -20,7 +19,6 @@ func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 			b.UnregisterStepHandler(ctx, update)
 			return
 		}
-		fmt.Println(subjects)
 		if len(subjects) == 0 {
 			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 				ChatID: update.Message.Chat.ID,
@@ -65,7 +63,7 @@ func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "Выбери семестр",
-		ReplyMarkup: keyboard.Ints(sems),
+		ReplyMarkup: keyboard.SemesterNums(sems),
 	})
 	if err != nil {
 		h.log.Error(err)
@@ -101,7 +99,7 @@ func (h BotHandler) getSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "Выбери тип работы",
-		ReplyMarkup: keyboard.Strings(subjectsTypes),
+		ReplyMarkup: keyboard.SubjectTypes(subjectsTypes),
 	})
 	if err != nil {
 		h.log.Error(err)
@@ -128,7 +126,7 @@ func (h BotHandler) getSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "Выбери институт",
-		ReplyMarkup: keyboard.Ints(insts),
+		ReplyMarkup: keyboard.InstituteNums(insts),
 	})
 
 	if err != nil {
@@ -155,7 +153,6 @@ func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 	currSubject.InstistuteNum = inst
 
 	variants, err := h.service.GetVariantsBySubject(ctx, currSubject)
-	fmt.Println(variants, "asdasd")
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -172,7 +169,6 @@ func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 		SendError(ctx, b, update)
 		return
 	}
-	h.log.Info("GetSkat", "ok")
 
 }
 
@@ -182,7 +178,8 @@ func (h BotHandler) getSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 	data := b.GetStepData(ctx, update)
 	currSubject := data.(models.Subject)
 	subjectType := update.Message.Text
-	fmt.Println(subjectType, currSubject)
+	currSubject = currSubject
+	subjectType = subjectType
 	//subjectTypeInt, err := h.service.GetSubjectTypeByName(ctx, subjectType)
 	//if err != nil {
 	//	h.log.Error(err)
@@ -192,8 +189,9 @@ func (h BotHandler) getSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 	//currSubject.Type = subjectTypeInt.Id
 
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
-		Text:   "Твой файл",
+		ChatID:      update.Message.Chat.ID,
+		Text:        "Твой файл",
+		ReplyMarkup: keyboard.Main(),
 	})
 	if err != nil {
 		h.log.Error(err)

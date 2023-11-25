@@ -10,6 +10,7 @@ type Variant struct {
 	Grade        *int      `json:"grade" db:"grade"`
 	CreationTime time.Time `json:"creation_time" db:"creation_time"`
 	TypeName     string    `json:"type_name" db:"type_name"`
+	FileId       string    `json:"file_id" db:"file_id"`
 }
 
 type VariantType struct {

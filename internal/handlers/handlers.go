@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -28,6 +29,11 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger, auth auth.Auth) 
 	//add skat
 	bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
 		keyboard.AddSkatCommand, tgbotapi.MatchTypeExact, botHandler.AddSkat())
+	//read file
+	//bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
+	//	"", tgbotapi.MatchTypeContains, ReadFiles())
+	//bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
+	//	"", tgbotapi.MatchTypeContains, ReadFiles())
 	//break
 	bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
 		"/"+"break", tgbotapi.MatchTypeExact, BreakSkat())
@@ -41,6 +47,7 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger, auth auth.Auth) 
 }
 func Start() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+		b.UnregisterStepHandler(ctx, update)
 		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
 			Text:        "Главное меню",
@@ -50,14 +57,25 @@ func Start() tgbotapi.HandlerFunc {
 }
 func BreakSkat() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-		b.UnregisterStepHandler(ctx, update)
 
-		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-			ChatID:      update.Message.Chat.ID,
-			Text:        "Главное меню",
-			ReplyMarkup: keyboard.Main(),
-		})
+		fmt.Println(update.Message.Document)
 
 	}
 
 }
+
+//func ReadFiles() tgbotapi.HandlerFunc {
+//	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+//
+//
+//		b.UnregisterStepHandler(ctx, update)
+//
+//		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+//			ChatID:      update.Message.Chat.ID,
+//			Text:        "Главное меню",
+//			ReplyMarkup: keyboard.Main(),
+//		})
+//
+//	}
+//
+//}

@@ -8,11 +8,11 @@ import (
 type Subject interface {
 	GetAllSubjectsOrderByName(ctx context.Context, asc bool) ([]models.Subject, error)
 	GetSubjectsByName(ctx context.Context, name string) ([]models.Subject, error)
-	GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.SubjectType, error)
+	GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject, error)
 	GetUniqueSubjects(ctx context.Context, asc bool) ([]models.Subject, error)
-	GetAllSubjectNames(ctx context.Context, asc bool) ([]string, error)
+	GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Subject, error)
 	GetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
-	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]string, error)
+	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error)
 	GetUniqueInstitutes(ctx context.Context, subjectName string, sem int, subjectType string, asc bool) ([]int, error)
 
 	AddOrGetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
@@ -21,7 +21,7 @@ type Subject interface {
 func (s service) GetAllSubjectsOrderByName(ctx context.Context, asc bool) ([]models.Subject, error) {
 	return nil, nil
 }
-func (s service) GetAllSubjectNames(ctx context.Context, asc bool) ([]string, error) {
+func (s service) GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Subject, error) {
 	subjects, err := s.rep.GetAllSubjectNames(ctx, asc)
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (s service) GetSubjectsByName(ctx context.Context, name string) ([]models.S
 
 }
 
-func (s service) GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.SubjectType, error) {
+func (s service) GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject, error) {
 	subjectTypes, err := s.rep.GetAllSubjectTypes(ctx, asc)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (s service) GetSubject(ctx context.Context, subject models.Subject) (models
 	}
 	return subject, nil
 }
-func (s service) GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]string, error) {
+func (s service) GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error) {
 	types, err := s.rep.GetUniqueSubjectTypes(ctx, subjectName, sem, asc)
 	if err != nil {
 		return nil, err
@@ -72,10 +72,13 @@ func (s service) AddOrGetSubject(ctx context.Context, subject models.Subject) (m
 	if err != nil && err.Error() != "no rows in result set" {
 		return models.Subject{}, err
 	}
-	id, err := s.rep.AddSubject(ctx, subject)
+	if subj.Id != 0 {
+		return subj, nil
+	}
+
+	newSubject, err := s.rep.AddSubject(ctx, subject)
 	if err != nil {
 		return models.Subject{}, err
 	}
-	subj.Id = id
-	return subj, nil
+	return newSubject, nil
 }
