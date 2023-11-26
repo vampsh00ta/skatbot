@@ -305,7 +305,7 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 	if update.Message.Document == nil {
 		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
-			Text:        "Файл отсутсвует, попробуй еще раз",
+			Text:        "Файл отсуствует, попробуй еще раз",
 			ReplyMarkup: keyboard.Main(),
 		})
 		return
