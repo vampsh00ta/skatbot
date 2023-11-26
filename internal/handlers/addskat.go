@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -12,8 +13,7 @@ import (
 
 func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-
-		subjects, err := h.service.GetAllSubjectNames(ctx, true)
+		insts, err := h.service.GetAllInstitutes(ctx, true)
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
@@ -22,8 +22,8 @@ func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 		}
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
-			Text:        "Выбери учебный предмет",
-			ReplyMarkup: keyboard.SubjectNames(subjects),
+			Text:        "Выбери институт",
+			ReplyMarkup: keyboard.InstituteNums(insts),
 		})
 		if err != nil {
 			h.log.Error(err)
@@ -35,10 +35,52 @@ func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 		subject := models.Subject{Variants: []models.Variant{
 			{},
 		}}
-		b.RegisterStepHandler(ctx, update, h.addSkatName, subject)
+		b.RegisterStepHandler(ctx, update, h.addSkatInstitute, subject)
 
 	}
 
+}
+func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+	var err error
+	data := b.GetStepData(ctx, update)
+	currSubject := data.(models.Subject)
+
+	institute, err := strconv.Atoi(update.Message.Text)
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		b.UnregisterStepHandler(ctx, update)
+		return
+	}
+
+	currSubject.InstistuteNum = institute
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		return
+	}
+
+	subjects, err := h.service.GetAllSubjectNames(ctx, true)
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		b.UnregisterStepHandler(ctx, update)
+		return
+	}
+	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+		ChatID:      update.Message.Chat.ID,
+		Text:        "Выбери учебный предмет",
+		ReplyMarkup: keyboard.SubjectNames(subjects),
+	})
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		b.UnregisterStepHandler(ctx, update)
+
+		return
+	}
+
+	b.RegisterStepHandler(ctx, update, h.addSkatName, currSubject)
 }
 func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
@@ -85,10 +127,6 @@ func (h BotHandler) addSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 	var err error
 	data := b.GetStepData(ctx, update)
 	currSubject := data.(models.Subject)
-	//text := update.Message.Text
-	//if back(ctx, b, update, update.Message.Text, h.AddSkat()) {
-	//	return
-	//}
 
 	semester, err := strconv.Atoi(update.Message.Text)
 
@@ -136,43 +174,6 @@ func (h BotHandler) addSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 		return
 	}
 
-	insts, err := h.service.GetAllInstitutes(ctx, true)
-	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-		ChatID:      update.Message.Chat.ID,
-		Text:        "Выбери институт",
-		ReplyMarkup: keyboard.InstituteNums(insts),
-	})
-	if err != nil {
-		h.log.Error(err)
-		SendError(ctx, b, update)
-		return
-	}
-
-	b.RegisterStepHandler(ctx, update, h.addSkatInstitute, currSubject)
-}
-func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-	var err error
-	data := b.GetStepData(ctx, update)
-	currSubject := data.(models.Subject)
-
-	if back(ctx, b, update, update.Message.Text, h.addSkatSemester) {
-		return
-	}
-	institute, err := strconv.Atoi(update.Message.Text)
-	if err != nil {
-		h.log.Error(err)
-		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
-		return
-	}
-
-	currSubject.InstistuteNum = institute
-	if err != nil {
-		h.log.Error(err)
-		SendError(ctx, b, update)
-		return
-	}
-
 	variantTypes, err := h.service.GetVariantTypes(ctx)
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
@@ -184,7 +185,6 @@ func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 		SendError(ctx, b, update)
 		return
 	}
-
 	b.RegisterStepHandler(ctx, update, h.addSkatWorkType, currSubject)
 }
 
@@ -315,7 +315,9 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 	if update.Message.Document != nil {
 		fileId = update.Message.Document.FileID
 	} else {
-		fileId = update.Message.Photo[0].FileID
+		fmt.Println(update.Message.Photo)
+		msgLen := len(update.Message.Photo)
+		fileId = update.Message.Photo[msgLen-1].FileID
 	}
 
 	subject, err := h.service.AddOrGetSubject(ctx, currSubject)
@@ -341,51 +343,3 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 	b.UnregisterStepHandler(ctx, update)
 
 }
-
-//func (h BotHandler) addSkatGrade(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-//	var err error
-//	defer b.UnregisterStepHandler(ctx, update)
-//	data := b.GetStepData(ctx, update)
-//	currSubject := data.(models.Subject)
-//	if update.Message.Text != "Пропуск" {
-//		grade, err := strconv.Atoi(update.Message.Text)
-//		if err != nil {
-//			h.log.Error(err)
-//			SendError(ctx, b, update)
-//			b.UnregisterStepHandler(ctx, update)
-//			return
-//		}
-//		currSubject.Variants[0].Grade = &grade
-//	}
-//
-//	subject, err := h.service.AddOrGetSubject(ctx, currSubject)
-//	if err != nil {
-//		h.log.Error(err)
-//		SendError(ctx, b, update)
-//		return
-//	}
-//	currSubject.Variants[0].CreationTime = time.Now()
-//	currSubject.Variants[0].SubjectId = subject.Id
-//	if err != nil {
-//		h.log.Error(err)
-//		SendError(ctx, b, update)
-//		return
-//	}
-//	if err := h.service.AddVariant(ctx, currSubject.Variants[0]); err != nil {
-//		h.log.Error(err)
-//		SendError(ctx, b, update)
-//		return
-//	}
-//	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-//		ChatID:      update.Message.Chat.ID,
-//		Text:        "Файл добавлен",
-//		ReplyMarkup: keyboard.Main(),
-//	})
-//	if err != nil {
-//		h.log.Error(err)
-//		SendError(ctx, b, update)
-//		return
-//	}
-//	h.log.Info("AddSkat", "ok")
-//
-//}

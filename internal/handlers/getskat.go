@@ -13,14 +13,14 @@ import (
 func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 
-		subjects, err := h.service.GetUniqueSubjects(ctx, 0, 0, "", true)
+		insts, err := h.service.GetUniqueInstitutes(ctx, "", 0, "", true)
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
 			b.UnregisterStepHandler(ctx, update)
 			return
 		}
-		if len(subjects) == 0 {
+		if len(insts) == 0 {
 			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 				ChatID: update.Message.Chat.ID,
 				Text:   "Пока что тут пусто,но твоя работа может стать первой :)",
@@ -31,8 +31,8 @@ func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 		}
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
-			Text:        "Выбери учебный предмет",
-			ReplyMarkup: keyboard.SubjectNames(subjects),
+			Text:        "Выбери доступный институт",
+			ReplyMarkup: keyboard.InstituteNums(insts),
 		})
 		if err != nil {
 			h.log.Error(err)
@@ -42,19 +42,26 @@ func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 			return
 		}
 		var subject models.Subject
-		b.RegisterStepHandler(ctx, update, h.getSkatName, subject)
+		b.RegisterStepHandler(ctx, update, h.getSkatInstitute, subject)
 
 	}
 
 }
-
-func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
+
 	data := b.GetStepData(ctx, update)
 	currSubject := data.(models.Subject)
-	currSubject.Name = update.Message.Text
+	inst, err := strconv.Atoi(update.Message.Text)
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		b.UnregisterStepHandler(ctx, update)
+		return
+	}
+	currSubject.InstistuteNum = inst
 
-	sems, err := h.service.GetUniqueSemesters(ctx, currSubject.Name, 0, "", true)
+	subjects, err := h.service.GetUniqueSubjects(ctx, inst, 0, "", true)
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -63,7 +70,28 @@ func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	}
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
-		Text:        "Выбери семестр",
+		Text:        "Выбери доступный учебный предмет",
+		ReplyMarkup: keyboard.SubjectNames(subjects),
+	})
+	b.RegisterStepHandler(ctx, update, h.getSkatName, currSubject)
+
+}
+func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+	var err error
+	data := b.GetStepData(ctx, update)
+	currSubject := data.(models.Subject)
+	currSubject.Name = update.Message.Text
+
+	sems, err := h.service.GetUniqueSemesters(ctx, currSubject.Name, currSubject.InstistuteNum, "", true)
+	if err != nil {
+		h.log.Error(err)
+		SendError(ctx, b, update)
+		b.UnregisterStepHandler(ctx, update)
+		return
+	}
+	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+		ChatID:      update.Message.Chat.ID,
+		Text:        "Выбери доступный семестр",
 		ReplyMarkup: keyboard.SemesterNums(sems),
 	})
 	if err != nil {
@@ -90,7 +118,7 @@ func (h BotHandler) getSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 	}
 	currSubject.Semester = semester
 
-	subjectsTypes, err := h.service.GetUniqueSubjectTypes(ctx, currSubject.Name, currSubject.Semester, 0, true)
+	subjectsTypes, err := h.service.GetUniqueSubjectTypes(ctx, currSubject.Name, currSubject.Semester, currSubject.InstistuteNum, true)
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -99,7 +127,7 @@ func (h BotHandler) getSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
-		Text:        "Выбери тип работы",
+		Text:        "Выбери доступный тип работы",
 		ReplyMarkup: keyboard.SubjectTypes(subjectsTypes),
 	})
 	if err != nil {
@@ -116,42 +144,7 @@ func (h BotHandler) getSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 	data := b.GetStepData(ctx, update)
 	currSubject := data.(models.Subject)
 	subjectType := update.Message.Text
-
 	currSubject.TypeName = subjectType
-	insts, err := h.service.GetUniqueInstitutes(ctx, currSubject.Name, currSubject.Semester, currSubject.TypeName, true)
-	if err != nil {
-		h.log.Error(err)
-		SendError(ctx, b, update)
-		return
-	}
-	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-		ChatID:      update.Message.Chat.ID,
-		Text:        "Выбери институт",
-		ReplyMarkup: keyboard.InstituteNums(insts),
-	})
-
-	if err != nil {
-		h.log.Error(err)
-		SendError(ctx, b, update)
-		return
-	}
-
-	b.RegisterStepHandler(ctx, update, h.getSkatInstitute, currSubject)
-}
-func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-	var err error
-	defer b.UnregisterStepHandler(ctx, update)
-
-	data := b.GetStepData(ctx, update)
-	currSubject := data.(models.Subject)
-	inst, err := strconv.Atoi(update.Message.Text)
-	if err != nil {
-		h.log.Error(err)
-		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
-		return
-	}
-	currSubject.InstistuteNum = inst
 
 	variants, err := h.service.GetVariantsBySubject(ctx, currSubject)
 	if err != nil {
@@ -175,35 +168,4 @@ func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 		SendError(ctx, b, update)
 		return
 	}
-
-}
-
-func (h BotHandler) getSkatVariant(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-	var err error
-	defer b.UnregisterStepHandler(ctx, update)
-	data := b.GetStepData(ctx, update)
-	currSubject := data.(models.Subject)
-	subjectType := update.Message.Text
-	currSubject = currSubject
-	subjectType = subjectType
-	//subjectTypeInt, err := h.service.GetSubjectTypeByName(ctx, subjectType)
-	//if err != nil {
-	//	h.log.Error(err)
-	//	SendError(ctx, b, update)
-	//	return
-	//}
-	//currSubject.Type = subjectTypeInt.Id
-
-	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-		ChatID:      update.Message.Chat.ID,
-		Text:        "Доступные файлы",
-		ReplyMarkup: keyboard.Main(),
-	})
-	if err != nil {
-		h.log.Error(err)
-		SendError(ctx, b, update)
-		return
-	}
-	h.log.Info("GetSkat", "ok")
-
 }

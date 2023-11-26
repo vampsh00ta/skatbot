@@ -12,9 +12,6 @@ type Variant struct {
 	TypeName     string    `json:"type_name" db:"type_name"`
 	FileId       string    `json:"file_id" db:"file_id"`
 	FilePath     string    `json:"file_path" db:"file_path"`
-}
-
-type VariantType struct {
-	Id   int    `json:"id" db:"id"`
-	Name string `json:"name" db:"name"`
+	TgId         *int      `json:"tg_id" db:"tg_id"`
+	TgUsername   *string   `json:"tg_username" db:"tg_username"`
 }
