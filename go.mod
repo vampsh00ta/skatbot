@@ -26,4 +26,4 @@ require (
 	golang.org/x/text v0.13.0 // indirect
 )
 
-replace github.com/go-telegram/bot => github.com/vampsh00ta/bot_steps_handlers v0.0.0-20231013123147-e954edaeddfe
+replace github.com/go-telegram/bot => github.com/vampsh00ta/bot_steps_handlers v0.0.0-20231126203731-32f89abe0597

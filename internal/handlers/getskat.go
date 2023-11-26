@@ -12,12 +12,12 @@ import (
 
 func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-
+		b.UnregisterStepHandler(update.Message.From.ID)
 		insts, err := h.service.GetUniqueInstitutes(ctx, "", 0, "", true)
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
-			b.UnregisterStepHandler(ctx, update)
+			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
 		if len(insts) == 0 {
@@ -26,7 +26,7 @@ func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 				Text:   "Пока что тут пусто,но твоя работа может стать первой :)",
 				//ReplyMarkup: keyboard.SubjectsTypes(subjectsTypes),
 			})
-			b.UnregisterStepHandler(ctx, update)
+			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
@@ -37,12 +37,12 @@ func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
-			b.UnregisterStepHandler(ctx, update)
+			b.UnregisterStepHandler(update.Message.From.ID)
 
 			return
 		}
 		var subject models.Subject
-		b.RegisterStepHandler(ctx, update, h.getSkatInstitute, subject)
+		b.RegisterStepHandler(update.Message.From.ID, h.getSkatInstitute, subject)
 
 	}
 
@@ -50,13 +50,13 @@ func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
 
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	inst, err := strconv.Atoi(update.Message.Text)
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	currSubject.InstistuteNum = inst
@@ -65,7 +65,7 @@ func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
@@ -73,12 +73,12 @@ func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 		Text:        "Выбери доступный учебный предмет",
 		ReplyMarkup: keyboard.SubjectNames(subjects),
 	})
-	b.RegisterStepHandler(ctx, update, h.getSkatName, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.getSkatName, currSubject)
 
 }
 func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	currSubject.Name = update.Message.Text
 
@@ -86,7 +86,7 @@ func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
@@ -97,23 +97,23 @@ func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 
 		return
 	}
 
-	b.RegisterStepHandler(ctx, update, h.getSkatSemester, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.getSkatSemester, currSubject)
 }
 
 func (h BotHandler) getSkatSemester(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	semester, err := strconv.Atoi(update.Message.Text)
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	currSubject.Semester = semester
@@ -136,12 +136,12 @@ func (h BotHandler) getSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 		return
 	}
 
-	b.RegisterStepHandler(ctx, update, h.getSkatType, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.getSkatType, currSubject)
 }
 
 func (h BotHandler) getSkatType(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	subjectType := update.Message.Text
 	currSubject.TypeName = subjectType
@@ -156,7 +156,7 @@ func (h BotHandler) getSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
 		Text:        "Доступные файлы",
-		ReplyMarkup: response.Variants(variants),
+		ReplyMarkup: response.VariantsWithDelete(variants, update.Message.From.ID),
 	})
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 		ChatID:      update.Message.Chat.ID,
@@ -168,4 +168,6 @@ func (h BotHandler) getSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 		SendError(ctx, b, update)
 		return
 	}
+	b.UnregisterStepHandler(update.Message.From.ID)
+
 }

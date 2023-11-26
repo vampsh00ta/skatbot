@@ -35,8 +35,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
-github.com/vampsh00ta/bot_steps_handlers v0.0.0-20231013123147-e954edaeddfe h1:0pTHbWvpSsFfaJUQTC+J7mishnxViGvYyMtN8jWOZuk=
-github.com/vampsh00ta/bot_steps_handlers v0.0.0-20231013123147-e954edaeddfe/go.mod h1:i2TRs7fXWIeaceF3z7KzsMt/he0TwkVC680mvdTFYeM=
+github.com/vampsh00ta/bot_steps_handlers v0.0.0-20231126203731-32f89abe0597 h1:pP9CuHJ3B7oXiwFJpSQaLr/CL8NxJlMmELHRYuWk8Ms=
+github.com/vampsh00ta/bot_steps_handlers v0.0.0-20231126203731-32f89abe0597/go.mod h1:i2TRs7fXWIeaceF3z7KzsMt/he0TwkVC680mvdTFYeM=
 golang.org/x/crypto v0.14.0 h1:wBqGXzWJW6m1XrIKlAH0Hs1JJ7+9KBwnIO8v66Q9cHc=
 golang.org/x/crypto v0.14.0/go.mod h1:MVFd36DqK4CsrnJYDkBA3VC4m2GkXAM0PvzMCn4JQf4=
 golang.org/x/sync v0.1.0 h1:wsuoTGHzEhffawBOhz5CYhcrV4IdKZbEyZjBMuTp12o=

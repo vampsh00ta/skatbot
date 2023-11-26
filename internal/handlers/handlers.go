@@ -43,7 +43,7 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 }
 func Start() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
 			Text:        "Главное меню",

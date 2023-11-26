@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -13,11 +12,13 @@ import (
 
 func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+		b.UnregisterStepHandler(update.Message.From.ID)
+
 		insts, err := h.service.GetAllInstitutes(ctx, true)
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
-			b.UnregisterStepHandler(ctx, update)
+			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
@@ -28,28 +29,28 @@ func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
-			b.UnregisterStepHandler(ctx, update)
+			b.UnregisterStepHandler(update.Message.From.ID)
 
 			return
 		}
 		subject := models.Subject{Variants: []models.Variant{
 			{},
 		}}
-		b.RegisterStepHandler(ctx, update, h.addSkatInstitute, subject)
+		b.RegisterStepHandler(update.Message.From.ID, h.addSkatInstitute, subject)
 
 	}
 
 }
 func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 
 	institute, err := strconv.Atoi(update.Message.Text)
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 
@@ -64,7 +65,7 @@ func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
@@ -75,16 +76,17 @@ func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 
 		return
 	}
 
-	b.RegisterStepHandler(ctx, update, h.addSkatName, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatName, currSubject)
 }
+
 func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	subjectName := update.Message.Text
 	currSubject.Name = subjectName
@@ -92,7 +94,7 @@ func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	if !ok {
@@ -105,7 +107,7 @@ func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
@@ -116,16 +118,16 @@ func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 
 		return
 	}
 
-	b.RegisterStepHandler(ctx, update, h.addSkatSemester, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatSemester, currSubject)
 }
 func (h BotHandler) addSkatSemester(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 
 	semester, err := strconv.Atoi(update.Message.Text)
@@ -133,7 +135,7 @@ func (h BotHandler) addSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	currSubject.Semester = semester
@@ -155,11 +157,11 @@ func (h BotHandler) addSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 		return
 	}
 
-	b.RegisterStepHandler(ctx, update, h.addSkatType, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatType, currSubject)
 }
 func (h BotHandler) addSkatType(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	//text := update.Message.Text
 	//if back(ctx, b, update, update.Message.Text, h.addSkatName) {
@@ -185,12 +187,12 @@ func (h BotHandler) addSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 		SendError(ctx, b, update)
 		return
 	}
-	b.RegisterStepHandler(ctx, update, h.addSkatWorkType, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatWorkType, currSubject)
 }
 
 func (h BotHandler) addSkatWorkType(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	//if back(ctx, b, update, update.Message.Text, h.addSkatType) {
 	//	return
@@ -210,11 +212,11 @@ func (h BotHandler) addSkatWorkType(ctx context.Context, b *tgbotapi.Bot, update
 		return
 	}
 
-	b.RegisterStepHandler(ctx, update, h.addSkatVariant, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatVariant, currSubject)
 }
 func (h BotHandler) addSkatVariant(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	if back(ctx, b, update, update.Message.Text, h.addSkatType) {
 		return
@@ -227,7 +229,7 @@ func (h BotHandler) addSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
-			b.UnregisterStepHandler(ctx, update)
+			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
 		currSubject.Variants[0].Num = &variant
@@ -235,7 +237,7 @@ func (h BotHandler) addSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
@@ -243,13 +245,13 @@ func (h BotHandler) addSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 		Text:        "Введи описание,чтобы другим было легче найти нужный файл",
 		ReplyMarkup: keyboard.Pass(),
 	})
-	b.RegisterStepHandler(ctx, update, h.addSkatDesc, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatDesc, currSubject)
 
 }
 
 func (h BotHandler) addSkatDesc(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	text := update.Message.Text
 	//back(ctx, b, update, text, h.addSkatWorkType)
@@ -257,7 +259,7 @@ func (h BotHandler) addSkatDesc(ctx context.Context, b *tgbotapi.Bot, update *tg
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
-		b.UnregisterStepHandler(ctx, update)
+		b.UnregisterStepHandler(update.Message.From.ID)
 		return
 	}
 	currSubject.Variants[0].Name = desc
@@ -266,20 +268,20 @@ func (h BotHandler) addSkatDesc(ctx context.Context, b *tgbotapi.Bot, update *tg
 		Text:        "Введи оценку или нажми пропуск",
 		ReplyMarkup: keyboard.Pass(),
 	})
-	b.RegisterStepHandler(ctx, update, h.addSkatGrade, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatGrade, currSubject)
 
 }
 
 func (h BotHandler) addSkatGrade(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	if update.Message.Text != "Пропуск" {
 		grade, err := strconv.Atoi(update.Message.Text)
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
-			b.UnregisterStepHandler(ctx, update)
+			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
 		currSubject.Variants[0].Grade = &grade
@@ -294,12 +296,12 @@ func (h BotHandler) addSkatGrade(ctx context.Context, b *tgbotapi.Bot, update *t
 		SendError(ctx, b, update)
 		return
 	}
-	b.RegisterStepHandler(ctx, update, h.addSkatFiles, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatFiles, currSubject)
 
 }
 func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(ctx, update)
+	data := b.GetStepData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	//&& update.Message.Photo != nil
 	var fileId string
@@ -315,7 +317,6 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 	if update.Message.Document != nil {
 		fileId = update.Message.Document.FileID
 	} else {
-		fmt.Println(update.Message.Photo)
 		msgLen := len(update.Message.Photo)
 		fileId = update.Message.Photo[msgLen-1].FileID
 	}
@@ -326,9 +327,19 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 		SendError(ctx, b, update)
 		return
 	}
+	if err != nil {
+		if err != nil {
+			h.log.Error(err)
+			SendError(ctx, b, update)
+			return
+		}
+	}
 	currSubject.Variants[0].CreationTime = time.Now()
 	currSubject.Variants[0].SubjectId = subject.Id
 	currSubject.Variants[0].FileId = fileId
+	currSubject.Variants[0].TgId = strconv.Itoa(int(update.Message.From.ID))
+	currSubject.Variants[0].TgUsername = update.Message.From.Username
+
 	if err := h.service.AddVariant(ctx, currSubject.Variants[0]); err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -340,6 +351,6 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 		ReplyMarkup: keyboard.Main(),
 	})
 	h.log.Info("AddSkat", "ok")
-	b.UnregisterStepHandler(ctx, update)
+	b.UnregisterStepHandler(update.Message.From.ID)
 
 }

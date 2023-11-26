@@ -33,8 +33,8 @@ func (d Db) GetVariantbyId(ctx context.Context, id int) (models.Variant, error) 
 func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Variant, error) {
 	var err error
 	//
-	q := `insert into variant (subject_id,name,num,grade,creation_time,type_name,file_id,file_path)
-			values ($1,$2,$3,$4,$5,$6,$7,$8) returning id 
+	q := `insert into variant (subject_id,name,num,grade,creation_time,type_name,file_id,file_path,tg_id,tg_username)
+			values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning id 
 		 `
 	//loc, _ := time.LoadLocation("Europe/Moscow")
 	//t := time.Now().In(loc)
@@ -50,7 +50,9 @@ func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Vari
 		variant.CreationTime,
 		variant.TypeName,
 		variant.FileId,
-		variant.FilePath).Scan(&variant.Id); err != nil {
+		variant.FilePath,
+		variant.TgId,
+		variant.TgUsername).Scan(&variant.Id); err != nil {
 
 		return models.Variant{}, err
 	}
