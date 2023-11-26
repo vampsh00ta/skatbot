@@ -8,7 +8,6 @@ import (
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
 	"skat_bot/internal/service"
-	"skat_bot/internal/service/auth"
 	log "skat_bot/pkg/logger"
 	"strconv"
 	"strings"
@@ -17,15 +16,14 @@ import (
 type BotHandler struct {
 	service service.Service
 	log     *log.Logger
-	auth    auth.Auth
 	back    BackSession
 }
 type GroupHandler struct {
 }
 
-func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger, auth auth.Auth) {
+func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 	back := BackSession{user: make(map[int64]Back)}
-	botHandler := &BotHandler{s, log, auth, back}
+	botHandler := &BotHandler{s, log, back}
 	//get skat
 	bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
 		keyboard.GetSkatCommand, tgbotapi.MatchTypeExact, botHandler.GetSkat())

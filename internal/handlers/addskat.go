@@ -303,6 +303,8 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 	data := b.GetStepData(ctx, update)
 	currSubject := data.(models.Subject)
 	if update.Message.Document == nil {
+		fmt.Println(update.Message.Photo)
+
 		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
 			Text:        "Файл отсуствует, попробуй еще раз",
