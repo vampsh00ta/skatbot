@@ -1,7 +1,6 @@
 package response
 
 import (
-	"fmt"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/repository/models"
 	"strconv"
@@ -73,7 +72,6 @@ func VariantsWithDelete(variants []models.Variant, id int64) *tgmodels.InlineKey
 	}
 	deleteDataConst := "deleteVariant_" + strconv.Itoa(int(id)) + "_"
 	for _, variant := range variants {
-		fmt.Println(variant.TgId)
 
 		deleteData := deleteDataConst
 		emodjiDelete := ""
