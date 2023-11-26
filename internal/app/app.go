@@ -27,6 +27,7 @@ func New(cfg *config.Config) {
 		panic(err)
 	}
 	rep := repository.New(db)
+	//fmt.Println(res, a)
 	//tx := rep.GetDb()
 	//a, err := rep.GetAllSubjectsOrderByName(ctx, true)
 	//fmt.Println(a, err)

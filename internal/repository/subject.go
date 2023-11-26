@@ -2,18 +2,20 @@ package psql
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"skat_bot/internal/repository/models"
+	"strconv"
 )
 
 type Subject interface {
 	AddSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 	GetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 	GetAllSubjects(ctx context.Context) ([]models.Subject, error)
-	GetUniqueSubjects(ctx context.Context, asc bool) ([]models.Subject, error)
+	GetUniqueSubjects(ctx context.Context, instituteNum, semester int, subjectType string, asc bool) ([]models.Subject, error)
 	GetSubjectsByName(ctx context.Context, name string, asc bool) ([]models.Subject, error)
 	GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Subject, error)
-	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error)
+	GetUniqueSubjectTypes(ctx context.Context, subjectName string, semester, instituteNum int, asc bool) ([]models.Subject, error)
 	GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject, error)
 	//AddOrGetSubject(ctx context.Context, subject models.Subject) ([]int, error)
 }
@@ -56,20 +58,49 @@ func (d Db) GetAllSubjects(ctx context.Context) ([]models.Subject, error) {
 	return subjects, nil
 }
 
-func (d Db) GetUniqueSubjects(ctx context.Context, asc bool) ([]models.Subject, error) {
+func (d Db) GetUniqueSubjects(ctx context.Context, instituteNum, semester int, subjectType string, asc bool) ([]models.Subject, error) {
 	var err error
 	//
-	q := `
-select id,name,semester_number,instistute_num,type_name from 
-	( select *, row_number() over (partition by name order by id) as num from active_subject ) active_subject 
-                                            where num = 1
+	q := `select id,name,semester_number,instistute_num,type_name from 
+		( select *, row_number() over (partition by name order by id) as num from active_subject 
 		 `
-
-	if asc {
-		q += " order by name"
+	varCount := 1
+	input := []any{}
+	if instituteNum != 0 || semester != 0 || subjectType != "" {
+		q += " where "
 	}
 
-	rows, err := d.client.Query(ctx, q)
+	if instituteNum != 0 {
+		institute := strconv.Itoa(instituteNum)
+		q += fmt.Sprintf(" instistute_num = $%d", varCount)
+		varCount += 1
+		input = append(input, institute)
+
+	}
+	if subjectType != "" {
+		if varCount > 1 {
+			q += " and "
+		}
+		q += fmt.Sprintf(" type_name = $%d", varCount)
+		varCount += 1
+		input = append(input, subjectType)
+
+	}
+	if semester != 0 {
+		institute := strconv.Itoa(semester)
+		if varCount > 1 {
+			q += " and "
+		}
+		q += fmt.Sprintf(" semester_number = $%d", varCount)
+		varCount += 1
+		input = append(input, institute)
+
+	}
+	q += `) active_subject where num = 1 order by name`
+	if !asc {
+		q += "desc "
+	}
+	rows, err := d.client.Query(ctx, q, input...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,18 +151,52 @@ func (d Db) GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject,
 
 	return subjects, nil
 }
-func (d Db) GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error) {
+func (d Db) GetUniqueSubjectTypes(ctx context.Context, subjectName string, semester, instituteNum int, asc bool) ([]models.Subject, error) {
 	var err error
 	//
-	q := `select type_name from active_subject where name = $1 and semester_number = $2 order by type_name
+	varCount := 1
+	q := `
+select type_name from 
+	( select *, row_number() over (partition by type_name order by id) as num from active_subject 
 		 `
+	if instituteNum != 0 || subjectName != "" || semester != 0 {
+		q += " where "
+	}
+	input := []any{}
+	if subjectName != "" {
+		q += fmt.Sprintf(" name = $%d", varCount)
+		varCount += 1
+		input = append(input, subjectName)
+	}
+
+	if instituteNum != 0 {
+		institute := strconv.Itoa(instituteNum)
+		if varCount > 1 {
+			q += " and "
+		}
+		q += fmt.Sprintf(" instistute_num = $%d", varCount)
+		varCount += 1
+		input = append(input, institute)
+
+	}
+	if semester != 0 {
+		sem := strconv.Itoa(semester)
+
+		if varCount > 1 {
+			q += " and "
+		}
+		q += fmt.Sprintf(" semester_number = $%d", varCount)
+		varCount += 1
+		input = append(input, sem)
+
+	}
+	q += `) active_subject where num = 1`
+
+	q += "order by  semester_number"
 	if !asc {
-		q += " desc"
+		q += " desc "
 	}
-	rows, err := d.client.Query(ctx, q, subjectName, sem)
-	if err != nil {
-		return nil, err
-	}
+	rows, err := d.client.Query(ctx, q, input...)
 	types, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Subject])
 	if err != nil {
 		return nil, err

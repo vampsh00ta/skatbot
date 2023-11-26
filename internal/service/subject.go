@@ -9,10 +9,10 @@ type Subject interface {
 	GetAllSubjectsOrderByName(ctx context.Context, asc bool) ([]models.Subject, error)
 	GetSubjectsByName(ctx context.Context, name string) ([]models.Subject, error)
 	GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject, error)
-	GetUniqueSubjects(ctx context.Context, asc bool) ([]models.Subject, error)
+	GetUniqueSubjects(ctx context.Context, instituteNum, semester int, subjectType string, asc bool) ([]models.Subject, error)
 	GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Subject, error)
 	GetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
-	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error)
+	GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem, instituteNum int, asc bool) ([]models.Subject, error)
 	GetUniqueInstitutes(ctx context.Context, subjectName string, sem int, subjectType string, asc bool) ([]int, error)
 	CheckSubjectName(ctx context.Context, subjectName string) (bool, error)
 	AddOrGetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
@@ -28,8 +28,8 @@ func (s service) GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Sub
 	}
 	return subjects, nil
 }
-func (s service) GetUniqueSubjects(ctx context.Context, asc bool) ([]models.Subject, error) {
-	subjects, err := s.rep.GetUniqueSubjects(ctx, true)
+func (s service) GetUniqueSubjects(ctx context.Context, instituteNum, semester int, subjectType string, asc bool) ([]models.Subject, error) {
+	subjects, err := s.rep.GetUniqueSubjects(ctx, instituteNum, semester, subjectType, true)
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +59,8 @@ func (s service) GetSubject(ctx context.Context, subject models.Subject) (models
 	}
 	return subject, nil
 }
-func (s service) GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem int, asc bool) ([]models.Subject, error) {
-	types, err := s.rep.GetUniqueSubjectTypes(ctx, subjectName, sem, asc)
+func (s service) GetUniqueSubjectTypes(ctx context.Context, subjectName string, sem, instituteNum int, asc bool) ([]models.Subject, error) {
+	types, err := s.rep.GetUniqueSubjectTypes(ctx, subjectName, sem, instituteNum, asc)
 	if err != nil {
 		return nil, err
 	}

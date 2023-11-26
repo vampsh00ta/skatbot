@@ -13,7 +13,7 @@ import (
 func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 
-		subjects, err := h.service.GetUniqueSubjects(ctx, true)
+		subjects, err := h.service.GetUniqueSubjects(ctx, 0, 0, "", true)
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
@@ -54,7 +54,7 @@ func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 	currSubject := data.(models.Subject)
 	currSubject.Name = update.Message.Text
 
-	sems, err := h.service.GetAllSemestersBySubjectName(ctx, currSubject.Name, true)
+	sems, err := h.service.GetUniqueSemesters(ctx, currSubject.Name, 0, "", true)
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -90,7 +90,7 @@ func (h BotHandler) getSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 	}
 	currSubject.Semester = semester
 
-	subjectsTypes, err := h.service.GetUniqueSubjectTypes(ctx, currSubject.Name, currSubject.Semester, true)
+	subjectsTypes, err := h.service.GetUniqueSubjectTypes(ctx, currSubject.Name, currSubject.Semester, 0, true)
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)

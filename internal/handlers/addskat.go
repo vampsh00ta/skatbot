@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -302,8 +301,9 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 	var err error
 	data := b.GetStepData(ctx, update)
 	currSubject := data.(models.Subject)
-	if update.Message.Document == nil {
-		fmt.Println(update.Message.Photo)
+	//&& update.Message.Photo != nil
+	var fileId string
+	if update.Message.Document == nil && update.Message.Photo == nil {
 
 		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
@@ -312,6 +312,12 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 		})
 		return
 	}
+	if update.Message.Document != nil {
+		fileId = update.Message.Document.FileID
+	} else {
+		fileId = update.Message.Photo[0].FileID
+	}
+
 	subject, err := h.service.AddOrGetSubject(ctx, currSubject)
 	if err != nil {
 		h.log.Error(err)
@@ -320,9 +326,7 @@ func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *t
 	}
 	currSubject.Variants[0].CreationTime = time.Now()
 	currSubject.Variants[0].SubjectId = subject.Id
-	currSubject.Variants[0].FileId = update.Message.Document.FileID
-	currSubject.Variants[0].FilePath = update.Message.Document.FileName
-	fmt.Println(currSubject)
+	currSubject.Variants[0].FileId = fileId
 	if err := h.service.AddVariant(ctx, currSubject.Variants[0]); err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
