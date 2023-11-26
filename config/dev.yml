@@ -1,6 +1,6 @@
 app:
   name: 'skatbot'
-  version: '0.3.0'
+  version: '0.4.0'
 
 tg:
   apitoken: "6352576956:AAH1icJcTeDiTI7ppqTuSrXZ8QdQ_sZAGYU"
