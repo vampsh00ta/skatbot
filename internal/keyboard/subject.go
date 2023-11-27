@@ -8,7 +8,8 @@ import (
 func SubjectNames(subjects []models.Subject) *tgmodels.ReplyKeyboardMarkup {
 
 	kb := &tgmodels.ReplyKeyboardMarkup{
-		Keyboard: [][]tgmodels.KeyboardButton{},
+		ResizeKeyboard: false,
+		Keyboard:       [][]tgmodels.KeyboardButton{},
 	}
 
 	for _, subject := range subjects {

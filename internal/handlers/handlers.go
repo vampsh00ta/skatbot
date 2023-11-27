@@ -6,6 +6,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
+	"skat_bot/internal/fsm"
 	"skat_bot/internal/keyboard"
 	"skat_bot/internal/service"
 	log "skat_bot/pkg/logger"
@@ -16,14 +17,14 @@ import (
 type BotHandler struct {
 	service service.Service
 	log     *log.Logger
-	back    BackSession
+	fsm     fsm.Fsm
 }
 type GroupHandler struct {
 }
 
 func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
-	back := BackSession{user: make(map[int64]Back)}
-	botHandler := &BotHandler{s, log, back}
+	f := fsm.New()
+	botHandler := &BotHandler{s, log, f}
 	//get skat
 	bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
 		keyboard.GetSkatCommand, tgbotapi.MatchTypeExact, botHandler.GetSkat())
@@ -33,12 +34,18 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 	//download skat
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		"variant", tgbotapi.MatchTypePrefix, botHandler.DownloadFile())
+	//page institute paginator
+	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
+		keyboard.PageInstitutePaginatorData, tgbotapi.MatchTypeContains, botHandler.PageInstitutePaginator())
+	//pass callback
+	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
+		"pass", tgbotapi.MatchTypePrefix, botHandler.Pass())
 	//start
 	bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
 		"/start", tgbotapi.MatchTypeExact, Start())
-	//back
-	bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
-		keyboard.BackCommand, tgbotapi.MatchTypeExact, back.undo())
+	////back
+	//bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
+	//	keyboard.BackCommand, tgbotapi.MatchTypeExact, back.undo())
 
 }
 func Start() tgbotapi.HandlerFunc {
@@ -115,6 +122,15 @@ func (h BotHandler) DownloadFile() tgbotapi.HandlerFunc {
 		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID: update.CallbackQuery.Message.Chat.ID,
 			Text:   text,
+		})
+
+	}
+}
+func (h BotHandler) Pass() tgbotapi.HandlerFunc {
+	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
+			CallbackQueryID: update.CallbackQuery.ID,
+			ShowAlert:       false,
 		})
 
 	}

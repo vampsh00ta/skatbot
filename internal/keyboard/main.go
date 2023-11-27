@@ -26,6 +26,7 @@ func Main() *tgmodels.ReplyKeyboardMarkup {
 func Pass() *tgmodels.ReplyKeyboardMarkup {
 
 	kb := &tgmodels.ReplyKeyboardMarkup{
+		ResizeKeyboard: true,
 		Keyboard: [][]tgmodels.KeyboardButton{
 			{
 				{Text: BackCommand},

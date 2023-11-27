@@ -15,6 +15,8 @@ func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 		b.UnregisterStepHandler(update.Message.From.ID)
 
 		insts, err := h.service.GetAllInstitutes(ctx, true)
+		insts = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}
+
 		if err != nil {
 			h.log.Error(err)
 			SendError(ctx, b, update)
@@ -24,7 +26,7 @@ func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
 			Text:        "Выбери институт",
-			ReplyMarkup: keyboard.InstituteNums(insts),
+			ReplyMarkup: keyboard.InstituteNumsTest(insts, 1),
 		})
 		if err != nil {
 			h.log.Error(err)
