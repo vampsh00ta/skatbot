@@ -15,7 +15,6 @@ func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 		b.UnregisterStepHandler(update.Message.From.ID)
 
 		insts, err := h.service.GetAllInstitutes(ctx, true)
-		insts = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}
 
 		if err != nil {
 			h.log.Error(err)
@@ -38,14 +37,15 @@ func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 		subject := models.Subject{Variants: []models.Variant{
 			{},
 		}}
-		b.RegisterStepHandler(update.Message.From.ID, h.addSkatInstitute, subject)
+		h.fsm.AddData(update.Message.From.ID, subject)
+		b.RegisterStepHandler(update.Message.From.ID, h.addSkatInstitute, nil)
 
 	}
 
 }
 func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 
 	institute, err := strconv.Atoi(update.Message.Text)
@@ -83,12 +83,13 @@ func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 		return
 	}
 
-	b.RegisterStepHandler(update.Message.From.ID, h.addSkatName, currSubject)
+	h.fsm.AddData(update.Message.From.ID, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatName, nil)
 }
 
 func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	subjectName := update.Message.Text
 	currSubject.Name = subjectName
@@ -124,12 +125,13 @@ func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 
 		return
 	}
+	h.fsm.AddData(update.Message.From.ID, currSubject)
 
-	b.RegisterStepHandler(update.Message.From.ID, h.addSkatSemester, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatSemester, nil)
 }
 func (h BotHandler) addSkatSemester(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 
 	semester, err := strconv.Atoi(update.Message.Text)
@@ -158,12 +160,12 @@ func (h BotHandler) addSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 		SendError(ctx, b, update)
 		return
 	}
-
-	b.RegisterStepHandler(update.Message.From.ID, h.addSkatType, currSubject)
+	h.fsm.AddData(update.Message.From.ID, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatType, nil)
 }
 func (h BotHandler) addSkatType(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	//text := update.Message.Text
 	//if back(ctx, b, update, update.Message.Text, h.addSkatName) {
@@ -189,12 +191,13 @@ func (h BotHandler) addSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 		SendError(ctx, b, update)
 		return
 	}
-	b.RegisterStepHandler(update.Message.From.ID, h.addSkatWorkType, currSubject)
+	h.fsm.AddData(update.Message.From.ID, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatWorkType, nil)
 }
 
 func (h BotHandler) addSkatWorkType(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	//if back(ctx, b, update, update.Message.Text, h.addSkatType) {
 	//	return
@@ -213,12 +216,13 @@ func (h BotHandler) addSkatWorkType(ctx context.Context, b *tgbotapi.Bot, update
 		SendError(ctx, b, update)
 		return
 	}
+	h.fsm.AddData(update.Message.From.ID, currSubject)
 
-	b.RegisterStepHandler(update.Message.From.ID, h.addSkatVariant, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatVariant, nil)
 }
 func (h BotHandler) addSkatVariant(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	if back(ctx, b, update, update.Message.Text, h.addSkatType) {
 		return
@@ -247,13 +251,15 @@ func (h BotHandler) addSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 		Text:        "Введи описание,чтобы другим было легче найти нужный файл",
 		ReplyMarkup: keyboard.Pass(),
 	})
-	b.RegisterStepHandler(update.Message.From.ID, h.addSkatDesc, currSubject)
+	h.fsm.AddData(update.Message.From.ID, currSubject)
+
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatDesc, nil)
 
 }
 
 func (h BotHandler) addSkatDesc(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	text := update.Message.Text
 	//back(ctx, b, update, text, h.addSkatWorkType)
@@ -270,13 +276,15 @@ func (h BotHandler) addSkatDesc(ctx context.Context, b *tgbotapi.Bot, update *tg
 		Text:        "Введи оценку или нажми пропуск",
 		ReplyMarkup: keyboard.Pass(),
 	})
-	b.RegisterStepHandler(update.Message.From.ID, h.addSkatGrade, currSubject)
+	h.fsm.AddData(update.Message.From.ID, currSubject)
+
+	b.RegisterStepHandler(update.Message.From.ID, h.addSkatGrade, nil)
 
 }
 
 func (h BotHandler) addSkatGrade(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	if update.Message.Text != "Пропуск" {
 		grade, err := strconv.Atoi(update.Message.Text)
@@ -303,7 +311,8 @@ func (h BotHandler) addSkatGrade(ctx context.Context, b *tgbotapi.Bot, update *t
 }
 func (h BotHandler) addSkatFiles(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
+	defer h.fsm.DeleteData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	//&& update.Message.Photo != nil
 	var fileId string
