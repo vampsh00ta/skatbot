@@ -22,10 +22,11 @@ func (h BotHandler) AddSkat() tgbotapi.HandlerFunc {
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
+
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
 			Text:        "Выбери институт",
-			ReplyMarkup: keyboard.InstituteNumsTest(insts, 1),
+			ReplyMarkup: keyboard.InstituteNums(insts),
 		})
 		if err != nil {
 			h.log.Error(err)
@@ -75,6 +76,7 @@ func (h BotHandler) addSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 		Text:        "Выбери учебный предмет",
 		ReplyMarkup: keyboard.SubjectNames(subjects),
 	})
+
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -118,6 +120,7 @@ func (h BotHandler) addSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 		Text:        "Выбери семестр",
 		ReplyMarkup: keyboard.SemesterNums(sems),
 	})
+
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -155,6 +158,7 @@ func (h BotHandler) addSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 		Text:        "Выбери тип работы",
 		ReplyMarkup: keyboard.SubjectTypes(subjectsTypes),
 	})
+
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -186,6 +190,11 @@ func (h BotHandler) addSkatType(ctx context.Context, b *tgbotapi.Bot, update *tg
 		Text:        "Введи тип варианта ",
 		ReplyMarkup: keyboard.VariantsTypes(variantTypes),
 	})
+	_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+		ChatID:      update.Message.Chat.ID,
+		Text:        "Введи тип варианта ",
+		ReplyMarkup: keyboard.VariantsTypesTest(variantTypes, 1, keyboard.AddSkatSubjectNameCommand, keyboard.PageVariantTypePaginatorData),
+	})
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -211,6 +220,7 @@ func (h BotHandler) addSkatWorkType(ctx context.Context, b *tgbotapi.Bot, update
 		Text:        "Введи вариант или нажми пропуск",
 		ReplyMarkup: keyboard.Pass(),
 	})
+
 	if err != nil {
 		h.log.Error(err)
 		SendError(ctx, b, update)
@@ -224,9 +234,9 @@ func (h BotHandler) addSkatVariant(ctx context.Context, b *tgbotapi.Bot, update 
 	var err error
 	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
-	if back(ctx, b, update, update.Message.Text, h.addSkatType) {
-		return
-	}
+	//if back(ctx, b, update, update.Message.Text, h.addSkatType) {
+	//	return
+	//}
 	//back(ctx, b, update, text, h.addSkatInstitute)
 
 	if update.Message.Text != "Пропуск" {

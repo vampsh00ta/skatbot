@@ -10,13 +10,17 @@ import (
 type (
 	// Config -.
 	Config struct {
-		App `yaml:"app"`
-		Log `yaml:"logger"`
-		PG  `yaml:"postgres"`
-		Tg  `yaml:"tg"`
+		App  `yaml:"app"`
+		Log  `yaml:"logger"`
+		PG   `yaml:"postgres"`
+		Tg   `yaml:"tg"`
+		Http `yaml:"http"`
 	}
 	Tg struct {
 		Apitoken string `env-required:"true" yaml:"apitoken"    env:"API_TOKEN"`
+	}
+	Http struct {
+		Port string `env-required:"true" yaml:"Port"    env:"Port"`
 	}
 	App struct {
 		Name    string `env-required:"true" yaml:"name"    env:"APP_NAME"`

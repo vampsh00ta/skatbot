@@ -4,7 +4,8 @@ app:
 
 tg:
   apitoken: "6352576956:AAH1icJcTeDiTI7ppqTuSrXZ8QdQ_sZAGYU"
-
+http:
+  port: '8000'
 logger:
   log_level: 'debug'
   rollbar_env: 'skatbot'

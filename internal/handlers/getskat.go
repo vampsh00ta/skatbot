@@ -29,6 +29,7 @@ func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
+
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.Message.Chat.ID,
 			Text:        "Выбери доступный институт",
@@ -42,7 +43,8 @@ func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 			return
 		}
 		var subject models.Subject
-		b.RegisterStepHandler(update.Message.From.ID, h.getSkatInstitute, subject)
+		h.fsm.AddData(update.Message.From.ID, subject)
+		b.RegisterStepHandler(update.Message.From.ID, h.getSkatInstitute, nil)
 
 	}
 
@@ -50,7 +52,7 @@ func (h BotHandler) GetSkat() tgbotapi.HandlerFunc {
 func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
 
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	inst, err := strconv.Atoi(update.Message.Text)
 	if err != nil {
@@ -73,12 +75,13 @@ func (h BotHandler) getSkatInstitute(ctx context.Context, b *tgbotapi.Bot, updat
 		Text:        "Выбери доступный учебный предмет",
 		ReplyMarkup: keyboard.SubjectNames(subjects),
 	})
-	b.RegisterStepHandler(update.Message.From.ID, h.getSkatName, currSubject)
+	h.fsm.AddData(update.Message.From.ID, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.getSkatName, nil)
 
 }
 func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	currSubject.Name = update.Message.Text
 
@@ -101,13 +104,14 @@ func (h BotHandler) getSkatName(ctx context.Context, b *tgbotapi.Bot, update *tg
 
 		return
 	}
+	h.fsm.AddData(update.Message.From.ID, currSubject)
 
-	b.RegisterStepHandler(update.Message.From.ID, h.getSkatSemester, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.getSkatSemester, nil)
 }
 
 func (h BotHandler) getSkatSemester(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	semester, err := strconv.Atoi(update.Message.Text)
 	if err != nil {
@@ -136,12 +140,13 @@ func (h BotHandler) getSkatSemester(ctx context.Context, b *tgbotapi.Bot, update
 		return
 	}
 
-	b.RegisterStepHandler(update.Message.From.ID, h.getSkatType, currSubject)
+	h.fsm.AddData(update.Message.From.ID, currSubject)
+	b.RegisterStepHandler(update.Message.From.ID, h.getSkatType, nil)
 }
 
 func (h BotHandler) getSkatType(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 	var err error
-	data := b.GetStepData(update.Message.From.ID)
+	data := h.fsm.GetData(update.Message.From.ID)
 	currSubject := data.(models.Subject)
 	subjectType := update.Message.Text
 	currSubject.TypeName = subjectType
