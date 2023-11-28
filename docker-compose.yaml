@@ -1,0 +1,62 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+    image: skatbot
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - migrate
+
+    links:
+      - migrate
+    networks:
+      -  db-network
+  db:
+    image: postgres:14.6
+    restart: always
+    container_name: db
+    hostname: db
+
+    environment:
+      POSTGRES_DB: skatbot
+      POSTGRES_PASSWORD: skatbot
+      POSTGRES_USER: skatbot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U skatbot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - db-network
+  migrate:
+    image: migrate/migrate
+    container_name: db_migrations
+    networks:
+      - db-network
+    volumes:
+      - ./migrations:/migrations
+    links:
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+    command: -path=/migrations -database postgres://skatbot:skatbot@db:5432/skatbot?sslmode=disable up
+
+
+networks:
+  db-network:
+volumes:
+  postgres_data:

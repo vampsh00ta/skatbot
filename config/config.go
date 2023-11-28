@@ -18,6 +18,7 @@ type (
 	}
 	Tg struct {
 		Apitoken string `env-required:"true" yaml:"apitoken"    env:"API_TOKEN"`
+		BaseURL  string `env-required:"true" yaml:"baseURL"    env:"API_TOKEN"`
 	}
 	Http struct {
 		Port string `env-required:"true" yaml:"Port"    env:"Port"`
