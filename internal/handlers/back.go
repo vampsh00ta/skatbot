@@ -26,10 +26,14 @@ func (h BotHandler) Back() tgbotapi.HandlerFunc {
 		})
 
 		userId := update.CallbackQuery.Sender.ID
+		kb := h.fsm.GetKeyboard(userId)
+		if kb == nil {
+			return
+		}
 		_, err := b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
 			ChatID:      update.CallbackQuery.Message.Chat.ID,
 			MessageID:   update.CallbackQuery.Message.ID,
-			ReplyMarkup: h.fsm.GetKeyboard(userId),
+			ReplyMarkup: kb,
 		})
 		if err != nil {
 			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{

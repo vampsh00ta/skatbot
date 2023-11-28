@@ -40,7 +40,6 @@ func addPadding(kb *tgmodels.InlineKeyboardMarkup, page, objLen int, paddingComm
 				Text: strconv.Itoa(page) + "/" + strconv.Itoa(allPages), CallbackData: "pass",
 			},
 		}
-
 	} else if page > 1 && page != allPages {
 		res = []tgmodels.InlineKeyboardButton{
 			{

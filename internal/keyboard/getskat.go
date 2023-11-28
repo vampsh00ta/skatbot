@@ -11,21 +11,6 @@ const (
 const (
 	pageAmount = 8
 )
-const (
-	PageInstitutePaginatorData       = "institutePage_"
-	PageInstituteUniquePaginatorData = "institutePage#unique#_"
-
-	PageSubjectNamePaginatorData       = "subjectnamePage_"
-	PageSubjectNameUniquePaginatorData = "subjectname#unique#Page_"
-
-	PageSubjectTypePaginatorData       = "subjectTypePage_"
-	PageSubjectTypeUniquePaginatorData = "subjectType#unique#Page_"
-
-	PageSemesterPaginatorData       = "semesterPage_"
-	PageSemesterUniquePaginatorData = "semesterPage#unique#_"
-
-	PageVariantTypePaginatorData = "variantTypePage_"
-)
 
 func InstituteNums(sems []int) *tgmodels.ReplyKeyboardMarkup {
 

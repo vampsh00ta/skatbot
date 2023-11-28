@@ -61,7 +61,6 @@ func (d Db) GetUniqueInstitutes(ctx context.Context, subjectName string, semeste
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(insts)
 	return insts, nil
 
 }

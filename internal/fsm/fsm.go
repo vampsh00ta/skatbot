@@ -83,6 +83,10 @@ func (fsm fsm) GetKeyboard(userId int64) *models.InlineKeyboardMarkup {
 		(*data).keyboard = (*data).keyboard[0 : len(data.keyboard)-1]
 	}
 	step := len(data.keyboard)
+	if step == 0 {
+		return nil
+	}
+
 	return data.keyboard[step-1]
 }
 func (fsm fsm) AddData(userId int64, val interface{}) {

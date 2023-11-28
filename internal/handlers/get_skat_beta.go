@@ -19,6 +19,7 @@ func (h BotHandler) GetSkatBeta() tgbotapi.HandlerFunc {
 		})
 		insts, err := h.service.GetUniqueInstitutes(ctx, "", 0, "", true)
 		if err != nil {
+			h.log.Error().Str("GetSkatBeta", "error").Msg(err.Error())
 			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 				ChatID: update.CallbackQuery.Message.Chat.ID,
 				Text:   "Что-то пошло не так",
@@ -35,6 +36,7 @@ func (h BotHandler) GetSkatBeta() tgbotapi.HandlerFunc {
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, models.Subject{Variants: []models.Variant{
 			models.Variant{},
 		}})
+		h.log.Info().Str("GetSkatBeta", "ok")
 	}
 }
 
@@ -50,6 +52,8 @@ func (h BotHandler) GetSkatBetaInstitute() tgbotapi.HandlerFunc {
 		instituteStr := strings.Split(update.CallbackQuery.Data, "_")[1]
 		inst, err := strconv.Atoi(instituteStr)
 		if err != nil {
+			h.log.Error().Str("GetSkatBetaInstitute", "error").Msg(err.Error())
+
 			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 				ChatID: update.CallbackQuery.Message.Chat.ID,
 				Text:   "Что-то пошло не так",
@@ -59,7 +63,8 @@ func (h BotHandler) GetSkatBetaInstitute() tgbotapi.HandlerFunc {
 
 		subjects, err := h.service.GetUniqueSubjects(ctx, inst, 0, "", true)
 		if err != nil {
-			h.log.Error(err)
+			h.log.Error().Str("GetSkatBetaInstitute", "error").Msg(err.Error())
+
 			SendError(ctx, b, update)
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
@@ -73,7 +78,8 @@ func (h BotHandler) GetSkatBetaInstitute() tgbotapi.HandlerFunc {
 		})
 
 		if err != nil {
-			h.log.Error(err)
+			h.log.Error().Str("GetSkatBetaInstitute", "error").Msg(err.Error())
+
 			SendError(ctx, b, update)
 			b.UnregisterStepHandler(update.CallbackQuery.Message.From.ID)
 
@@ -81,6 +87,7 @@ func (h BotHandler) GetSkatBetaInstitute() tgbotapi.HandlerFunc {
 		}
 
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
+		h.log.Info().Str("GetSkatBetaInstitute", "ok")
 
 	}
 
@@ -98,7 +105,8 @@ func (h BotHandler) GetSkatBetaSubjectName() tgbotapi.HandlerFunc {
 		currSubject.Name = subjectName
 		sems, err := h.service.GetUniqueSemesters(ctx, subjectName, currSubject.InstistuteNum, "", true)
 		if err != nil {
-			h.log.Error(err)
+			h.log.Error().Str("GetSkatBetaSubjectName", "error").Msg(err.Error())
+
 			SendError(ctx, b, update)
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
@@ -113,7 +121,8 @@ func (h BotHandler) GetSkatBetaSubjectName() tgbotapi.HandlerFunc {
 		})
 
 		if err != nil {
-			h.log.Error(err)
+			h.log.Error().Str("GetSkatBetaSubjectName", "error").Msg(err.Error())
+
 			SendError(ctx, b, update)
 			b.UnregisterStepHandler(update.Message.From.ID)
 
@@ -121,6 +130,8 @@ func (h BotHandler) GetSkatBetaSubjectName() tgbotapi.HandlerFunc {
 		}
 
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
+		h.log.Info().Str("GetSkatBetaSubjectName", "ok")
+
 	}
 }
 func (h BotHandler) GetSkatBetaSemester() tgbotapi.HandlerFunc {
@@ -136,7 +147,8 @@ func (h BotHandler) GetSkatBetaSemester() tgbotapi.HandlerFunc {
 		semesterStr := strings.Split(update.CallbackQuery.Data, "_")[1]
 		sem, err := strconv.Atoi(semesterStr)
 		if err != nil {
-			h.log.Error(err)
+			h.log.Error().Str("GetSkatBetaSemester", "error").Msg(err.Error())
+
 			SendError(ctx, b, update)
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
@@ -145,7 +157,8 @@ func (h BotHandler) GetSkatBetaSemester() tgbotapi.HandlerFunc {
 
 		subjectsTypes, err := h.service.GetUniqueSubjectTypes(ctx, currSubject.Name, currSubject.Semester, currSubject.InstistuteNum, true)
 		if err != nil {
-			h.log.Error(err)
+			h.log.Error().Str("GetSkatBetaSemester", "error").Msg(err.Error())
+
 			SendError(ctx, b, update)
 			return
 		}
@@ -159,11 +172,13 @@ func (h BotHandler) GetSkatBetaSemester() tgbotapi.HandlerFunc {
 		})
 
 		if err != nil {
-			h.log.Error(err)
+			h.log.Error().Str("GetSkatBetaSemester", "error").Msg(err.Error())
+
 			SendError(ctx, b, update)
 			return
 		}
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
+		h.log.Info().Str("GetSkatBetaSemester", "ok")
 
 	}
 }
@@ -183,7 +198,8 @@ func (h BotHandler) GetSkatBetaSubjectType() tgbotapi.HandlerFunc {
 		currSubject.TypeName = typeName
 		variants, err := h.service.GetVariantsBySubject(ctx, currSubject)
 		if err != nil {
-			h.log.Error(err)
+			h.log.Error().Str("GetSkatBetaSubjectType", "error").Msg(err.Error())
+
 			SendError(ctx, b, update)
 			return
 		}
@@ -195,9 +211,12 @@ func (h BotHandler) GetSkatBetaSubjectType() tgbotapi.HandlerFunc {
 		})
 
 		if err != nil {
-			h.log.Error(err)
+			h.log.Error().Str("GetSkatBetaSubjectType", "error").Msg(err.Error())
+
 			SendError(ctx, b, update)
 			return
 		}
+		h.log.Info().Str("GetSkatBetaSubjectType", "ok")
+
 	}
 }

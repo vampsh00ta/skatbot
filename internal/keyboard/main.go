@@ -9,21 +9,6 @@ const (
 	//AddSkatCommand = "Добавить скат"
 	BackCommand = "Назад"
 )
-const (
-	AddSkatCommand            = "addSkat_"
-	AddSkatSemesterCommand    = "addSkatSemester_"
-	AddSkatInstituteCommand   = "addSkatInstitute_"
-	AddSkatSubjectNameCommand = "addSkatSubjectName_"
-	AddSkatSubjectTypeCommand = "addSkatSubjectType_"
-	AddSkatVariantTypeCommand = "addSkatVariantType_"
-)
-const (
-	GetSkatCommand            = "getSkat_"
-	GetSkatSemesterCommand    = "getSkatSemester_"
-	GetSkatInstituteCommand   = "getSkatInstitute_"
-	GetSkatSubjectNameCommand = "getSkatSubjectName_"
-	GetSkatSubjectTypeCommand = "getSkatSubjectType_"
-)
 
 func Main() *tgmodels.ReplyKeyboardMarkup {
 	kb := &tgmodels.ReplyKeyboardMarkup{

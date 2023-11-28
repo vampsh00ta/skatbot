@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -49,7 +48,6 @@ func (h BotHandler) InstitutePaginator() tgbotapi.HandlerFunc {
 			ShowAlert:       false,
 		})
 		buttonData := update.CallbackQuery.Data
-		fmt.Println(strings.Split(buttonData, "_"))
 		pageStr := strings.Split(buttonData, "_")[1]
 
 		page, err := strconv.Atoi(pageStr)
@@ -63,8 +61,7 @@ func (h BotHandler) InstitutePaginator() tgbotapi.HandlerFunc {
 		var insts []int
 		var paginator string
 		var command string
-
-		if len(strings.Split(pageStr, "#")) > 1 {
+		if len(strings.Split(buttonData, "#unique#")) > 1 {
 
 			insts, err = h.service.GetUniqueInstitutes(ctx, "", 0, "", true)
 			paginator = keyboard.PageInstituteUniquePaginatorData
@@ -76,7 +73,6 @@ func (h BotHandler) InstitutePaginator() tgbotapi.HandlerFunc {
 			command = keyboard.AddSkatInstituteCommand
 
 		}
-
 		if err != nil {
 			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 				ChatID: update.CallbackQuery.Message.Chat.ID,

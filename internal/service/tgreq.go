@@ -29,7 +29,6 @@ func (s service) getFilePath(fileId string) (string, error) {
 	const urlFormPath = "https://api.telegram.org/bot%s/getFile?file_id=%s"
 
 	urlPath := fmt.Sprintf(urlFormPath, token, fileId)
-	fmt.Println(urlPath)
 	resp, err := http.Get(urlPath)
 	if err != nil {
 		return "", err
@@ -49,7 +48,6 @@ func (s service) getFilePath(fileId string) (string, error) {
 func (s service) getFile(variant models.Variant, filePath string) (string, string, error) {
 	const urlFormFile = "https://api.telegram.org/file/bot%s/%s"
 	urlFile := fmt.Sprintf(urlFormFile, token, filePath)
-	fmt.Println(urlFile)
 
 	fileNameTg := strings.Split(filePath, "/")[1]
 	fileTypeTg := strings.Split(fileNameTg, ".")[1]

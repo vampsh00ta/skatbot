@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 	"os"
 	"os/signal"
 	"skat_bot/config"
@@ -47,15 +48,33 @@ func New(cfg *config.Config) {
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
 	opts := []tgbotapi.Option{
-		//tgbotapi.WithHTTPClient(time.Millisecond*20,httpserver.Port(cfg.Http.Port))
-
-		//tgbotapi.WithMiddlewares(handlers.BreakSkat),
+		//tgbotapi.WithDefaultHandler(handler),
 	}
 
 	bot, err := tgbotapi.New(cfg.Apitoken, opts...)
 	if err != nil {
 		panic(err)
 	}
+
 	handlers.New(bot, srvc, log)
+
+	//bot.SetWebhook(ctx, &tgbotapi.SetWebhookParams{
+	//	URL: fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", cfg.Apitoken),
+	//})
+
+	//go func() {
+	//	http.ListenAndServe(":2000", bot.WebhookHandler())
+	//}()
+
+	// Use StartWebhook instead of Start
+
 	bot.Start(ctx)
+
+}
+
+func handler(ctx context.Context, b *tgbotapi.Bot, update *models.Update) {
+	b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+		ChatID: update.Message.Chat.ID,
+		Text:   update.Message.Text,
+	})
 }

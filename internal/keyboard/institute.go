@@ -1,7 +1,6 @@
 package keyboard
 
 import (
-	"fmt"
 	tgmodels "github.com/go-telegram/bot/models"
 	"strconv"
 )
@@ -59,12 +58,10 @@ func InstituteNumsTest(insts []int, page int, command, paddingCommand string) *t
 		}
 		return pageAmount
 	}
-	fmt.Println(len(insts), len(insts)-(page-1)*pageAmount)
 	for i := (page - 1) * pageAmount; i < (page-1)*pageAmount+minNum(pageAmount, len(insts)-(page-1)*pageAmount); i++ {
 		if i == len(insts) {
 			break
 		}
-		fmt.Println(i)
 		inst := insts[i]
 
 		res := []tgmodels.InlineKeyboardButton{
