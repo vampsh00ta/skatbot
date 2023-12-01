@@ -21,7 +21,7 @@ type (
 		BaseURL  string `env-required:"true" yaml:"baseURL"    env:"API_TOKEN"`
 	}
 	Http struct {
-		Port string `env-required:"true" yaml:"Port"    env:"Port"`
+		Port string `env-required:"true" yaml:"port"    env:"port"`
 	}
 	App struct {
 		Name    string `env-required:"true" yaml:"name"    env:"APP_NAME"`

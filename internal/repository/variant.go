@@ -27,14 +27,19 @@ func (d Db) GetVariantbyId(ctx context.Context, id int) (models.Variant, error) 
 	if err != nil {
 		return models.Variant{}, err
 	}
-
-	return variant[0], nil
+	var v models.Variant
+	if len(variant) > 0 {
+		v = variant[0]
+	} else {
+		v = models.Variant{}
+	}
+	return v, nil
 }
 func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Variant, error) {
 	var err error
 	//
-	q := `insert into variant (subject_id,name,num,grade,creation_time,type_name,file_id,file_path,tg_id,tg_username)
-			values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning id 
+	q := `insert into variant (subject_id,name,num,grade,creation_time,type_name,file_id,file_path,tg_id,tg_username,file_type)
+			values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id 
 		 `
 	//loc, _ := time.LoadLocation("Europe/Moscow")
 	//t := time.Now().In(loc)
@@ -52,7 +57,8 @@ func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Vari
 		variant.FileId,
 		variant.FilePath,
 		variant.TgId,
-		variant.TgUsername).Scan(&variant.Id); err != nil {
+		variant.TgUsername,
+		variant.FileType).Scan(&variant.Id); err != nil {
 
 		return models.Variant{}, err
 	}

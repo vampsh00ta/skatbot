@@ -32,7 +32,8 @@ func (d Db) AddSubject(ctx context.Context, subject models.Subject) (models.Subj
 		subject.Semester,
 		subject.InstistuteNum,
 
-		subject.TypeName).Scan(&subject.Id); err != nil {
+		subject.TypeName,
+	).Scan(&subject.Id); err != nil {
 
 		return models.Subject{}, err
 	}
@@ -192,7 +193,7 @@ select type_name from
 	}
 	q += `) active_subject where num = 1`
 
-	q += "order by  semester_number"
+	q += " order by  semester_number"
 	if !asc {
 		q += " desc "
 	}

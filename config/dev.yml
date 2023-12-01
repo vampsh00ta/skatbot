@@ -1,6 +1,6 @@
 app:
   name: 'skatbot'
-  version: '0.4.0'
+  version: '0.9.0'
 
 tg:
   apitoken: "6352576956:AAH1icJcTeDiTI7ppqTuSrXZ8QdQ_sZAGYU"
@@ -10,7 +10,9 @@ http:
 logger:
   log_level: 'debug'
   rollbar_env: 'skatbot'
-
+redis:
+  unique_tts: 15s
+  all_tts: 120s
 postgres:
   username: "skatbot"
   password: "skatbot"

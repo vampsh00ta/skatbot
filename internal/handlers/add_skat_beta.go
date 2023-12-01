@@ -37,7 +37,7 @@ func (h BotHandler) AddSkatBeta() tgbotapi.HandlerFunc {
 		h.fsm.AddData(update.CallbackQuery.Sender.ID, models.Subject{Variants: []models.Variant{
 			models.Variant{},
 		}})
-		h.log.Info().Str("AddSkatBeta", "ok")
+		h.log.Info().Str("AddSkatBeta", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 }
@@ -49,6 +49,9 @@ func (h BotHandler) AddSkatBetaInstitute() tgbotapi.HandlerFunc {
 			ShowAlert:       false,
 		})
 		data := h.fsm.GetData(update.CallbackQuery.Sender.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		instituteStr := strings.Split(update.CallbackQuery.Data, "_")[1]
@@ -87,7 +90,7 @@ func (h BotHandler) AddSkatBetaInstitute() tgbotapi.HandlerFunc {
 		}
 
 		h.fsm.AddData(update.CallbackQuery.Sender.ID, currSubject)
-		h.log.Info().Str("AddSkatBetaInstitute", "ok")
+		h.log.Info().Str("AddSkatBetaInstitute", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 
@@ -99,6 +102,9 @@ func (h BotHandler) AddSkatBetaSubjectName() tgbotapi.HandlerFunc {
 			ShowAlert:       false,
 		})
 		data := h.fsm.GetData(update.CallbackQuery.Sender.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 		subjectName := strings.Split(update.CallbackQuery.Data, "_")[1]
 		currSubject.Name = subjectName
@@ -127,7 +133,7 @@ func (h BotHandler) AddSkatBetaSubjectName() tgbotapi.HandlerFunc {
 		}
 
 		h.fsm.AddData(update.CallbackQuery.Sender.ID, currSubject)
-		h.log.Info().Str("AddSkatBetaSubjectName", "ok")
+		h.log.Info().Str("AddSkatBetaSubjectName", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 }
@@ -139,6 +145,9 @@ func (h BotHandler) AddSkatBetaSemester() tgbotapi.HandlerFunc {
 			ShowAlert:       false,
 		})
 		data := h.fsm.GetData(update.CallbackQuery.Sender.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		semesterStr := strings.Split(update.CallbackQuery.Data, "_")[1]
@@ -172,7 +181,7 @@ func (h BotHandler) AddSkatBetaSemester() tgbotapi.HandlerFunc {
 			return
 		}
 		h.fsm.AddData(update.CallbackQuery.Sender.ID, currSubject)
-		h.log.Info().Str("AddSkatBetaSemester", "ok")
+		h.log.Info().Str("AddSkatBetaSemester", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 }
@@ -185,6 +194,9 @@ func (h BotHandler) AddSkatBetaSubjectType() tgbotapi.HandlerFunc {
 			ShowAlert:       false,
 		})
 		data := h.fsm.GetData(update.CallbackQuery.Sender.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		typeName := strings.Split(update.CallbackQuery.Data, "_")[1]
@@ -206,7 +218,7 @@ func (h BotHandler) AddSkatBetaSubjectType() tgbotapi.HandlerFunc {
 			return
 		}
 		h.fsm.AddData(update.CallbackQuery.Sender.ID, currSubject)
-		h.log.Info().Str("AddSkatBetaSubjectType", "ok")
+		h.log.Info().Str("AddSkatBetaSubjectType", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 }
@@ -220,6 +232,9 @@ func (h BotHandler) AddSkatBetaVariantType() tgbotapi.HandlerFunc {
 		})
 		h.fsm.ClearKeyboard(update.CallbackQuery.Sender.ID)
 		data := h.fsm.GetData(update.CallbackQuery.Sender.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		typeName := strings.Split(update.CallbackQuery.Data, "_")[1]
@@ -238,7 +253,7 @@ func (h BotHandler) AddSkatBetaVariantType() tgbotapi.HandlerFunc {
 		}
 		h.fsm.AddData(update.CallbackQuery.Sender.ID, currSubject)
 		b.RegisterStepHandler(update.CallbackQuery.Message.Chat.ID, h.AddSkatBetaVariant(), nil)
-		h.log.Info().Str("AddSkatBetaVariantType", "ok")
+		h.log.Info().Str("AddSkatBetaVariantType", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 }
@@ -246,6 +261,9 @@ func (h BotHandler) AddSkatBetaVariant() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 		var err error
 		data := h.fsm.GetData(update.Message.From.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		if update.Message.Text != "Пропуск" {
@@ -273,7 +291,7 @@ func (h BotHandler) AddSkatBetaVariant() tgbotapi.HandlerFunc {
 
 		h.fsm.AddData(update.Message.From.ID, currSubject)
 		b.RegisterStepHandler(update.Message.From.ID, h.AddSkatBetaDesc(), nil)
-		h.log.Info().Str("AddSkatBetaVariant", "ok")
+		h.log.Info().Str("AddSkatBetaVariant", "ok").Msg(update.Message.From.Username)
 
 	}
 }
@@ -282,6 +300,9 @@ func (h BotHandler) AddSkatBetaDesc() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 		var err error
 		data := h.fsm.GetData(update.Message.From.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		text := update.Message.Text
@@ -302,7 +323,7 @@ func (h BotHandler) AddSkatBetaDesc() tgbotapi.HandlerFunc {
 		h.fsm.AddData(update.Message.From.ID, currSubject)
 
 		b.RegisterStepHandler(update.Message.From.ID, h.AddSkatBetaGrade(), nil)
-		h.log.Info().Str("AddSkatBetaDesc", "ok")
+		h.log.Info().Str("AddSkatBetaDesc", "ok").Msg(update.Message.From.Username)
 
 	}
 }
@@ -312,6 +333,9 @@ func (h BotHandler) AddSkatBetaGrade() tgbotapi.HandlerFunc {
 
 		var err error
 		data := h.fsm.GetData(update.Message.From.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		if update.Message.Text != "Пропуск" {
@@ -335,7 +359,7 @@ func (h BotHandler) AddSkatBetaGrade() tgbotapi.HandlerFunc {
 			return
 		}
 		b.RegisterStepHandler(update.Message.From.ID, h.AddSkatBetaFiles(), nil)
-		h.log.Info().Str("AddSkatBetaGrade", "ok")
+		h.log.Info().Str("AddSkatBetaGrade", "ok").Msg(update.Message.From.Username)
 
 	}
 
@@ -345,6 +369,9 @@ func (h BotHandler) AddSkatBetaFiles() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 		var err error
 		data := h.fsm.GetData(update.Message.From.ID)
+		if data == nil {
+			return
+		}
 		defer h.fsm.DeleteData(update.Message.From.ID)
 		currSubject := data.(models.Subject)
 
@@ -360,9 +387,13 @@ func (h BotHandler) AddSkatBetaFiles() tgbotapi.HandlerFunc {
 		}
 		if update.Message.Document != nil {
 			fileId = update.Message.Document.FileID
+			currSubject.Variants[0].FileType = "document"
+
 		} else {
 			msgLen := len(update.Message.Photo)
 			fileId = update.Message.Photo[msgLen-1].FileID
+			currSubject.Variants[0].FileType = "photo"
+
 		}
 		subject, err := h.service.AddOrGetSubject(ctx, currSubject)
 		if err != nil {
@@ -393,7 +424,7 @@ func (h BotHandler) AddSkatBetaFiles() tgbotapi.HandlerFunc {
 			Text:   "Файл добавлен",
 		})
 		b.UnregisterStepHandler(update.Message.From.ID)
-		h.log.Info().Str("AddSkatBetaFiles", "ok").Str("subjectId", strconv.Itoa(subject.Id))
+		h.log.Info().Str("AddSkatBetaFiles", "ok").Str("subjectId", strconv.Itoa(subject.Id)).Msg(update.Message.From.Username)
 
 	}
 }

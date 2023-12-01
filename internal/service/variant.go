@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"skat_bot/internal/repository/models"
 	"time"
@@ -44,6 +43,7 @@ func (s service) DownloadVariantById(ctx context.Context, id int) (string, *[]by
 }
 func (s service) DownloadVariant(ctx context.Context, variant models.Variant) (string, *[]byte, error) {
 	filePath, err := s.getFilePath(variant.FileId)
+
 	if err != nil {
 		return "", nil, nil
 	}
@@ -51,7 +51,7 @@ func (s service) DownloadVariant(ctx context.Context, variant models.Variant) (s
 	if err != nil {
 		return "", nil, nil
 	}
-	fmt.Println(file, fileName)
+
 	fileData, errReadFile := os.ReadFile(fileName)
 	if errReadFile != nil {
 		return "", nil, nil

@@ -12,10 +12,10 @@ logger:
   rollbar_env: 'skatbot'
 
 postgres:
-  username: "skatbot"
-  password: "skatbot"
-  host: "db"
-  port: "5432"
-  name: "skatbot"
+  username: "postgres"
+  password: "Ae6BcFaBc6eCgB6A5be1EaADbDbGgada"
+  host: "roundhouse.proxy.rlwy.net"
+  port: "53113"
+  name: "railway"
   pool_max: 10
 

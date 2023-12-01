@@ -9,7 +9,7 @@ import (
 
 func SendError(ctx context.Context, bot *tgbotapi.Bot, update *models.Update) {
 	bot.SendMessage(ctx, &tgbotapi.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
+		ChatID: update.CallbackQuery.Message.Chat.ID,
 		Text:   fmt.Sprintf("Что-то пошло не так"),
 	})
 

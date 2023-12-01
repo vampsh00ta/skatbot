@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"skat_bot/internal/repository/models"
 )
 
@@ -76,7 +75,6 @@ func (s service) AddOrGetSubject(ctx context.Context, subject models.Subject) (m
 	if subj.Id != 0 {
 		return subj, nil
 	}
-	fmt.Println(subj)
 	newSubject, err := s.rep.AddSubject(ctx, subject)
 	if err != nil {
 		return models.Subject{}, err

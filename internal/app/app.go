@@ -3,16 +3,16 @@ package app
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	tgbotapi "github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
+	tgmodels "github.com/go-telegram/bot/models"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"skat_bot/config"
-	handlers "skat_bot/internal/handlers"
+	"skat_bot/internal/handlers"
 	repository "skat_bot/internal/repository"
 	"skat_bot/internal/service"
 	"skat_bot/pkg/client"
@@ -45,50 +45,34 @@ func New(cfg *config.Config) {
 
 	srvc := service.New(rep)
 	//err = srvc.DownloadVariant(ctx, models.Variant{FilePath: "documents/file_0.docx", Name: "xyu"})
-	fmt.Println(err)
 	log := logger.New(cfg.Level)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-
-	opts := []tgbotapi.Option{
-		//tgbotapi.WithDefaultHandler(handler),
-	}
+	opts := []tgbotapi.Option{}
 
 	bot, err := tgbotapi.New(cfg.Apitoken, opts...)
 	if err != nil {
 		panic(err)
 	}
-	url := cfg.BaseURL + cfg.Tg.Apitoken
 	bot.SetWebhook(ctx, &tgbotapi.SetWebhookParams{
-		URL: url,
+		URL: "https://751c-95-24-69-216.ngrok-free.app" + "/webhook" + cfg.Apitoken,
 	})
 	if err != nil {
 		panic(err)
 	}
-	handlers.New(bot, srvc, log)
 	// gin router
 	router := gin.New()
 	router.Use(gin.Logger())
+	handlers.New(bot, srvc, log)
 
 	// telegram
 
-	router.POST("/"+cfg.Apitoken, webhookHandler)
-
-	err = router.Run(":" + cfg.Http.Port)
-	if err != nil {
-		panic(err)
-	}
-	//bot.SetWebhook(ctx, &tgbotapi.SetWebhookParams{
-	//	URL: fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", cfg.Apitoken),
-	//})
-
-	//go func() {
-	//	http.ListenAndServe(":2000", bot.WebhookHandler())
-	//}()
+	go func() {
+		http.ListenAndServe(":"+cfg.Http.Port, bot.WebhookHandler())
+	}()
 
 	// Use StartWebhook instead of Start
-
 	bot.StartWebhook(ctx)
 
 }
@@ -102,7 +86,7 @@ func webhookHandler(c *gin.Context) {
 		return
 	}
 
-	var update models.Update
+	var update tgmodels.Update
 	err = json.Unmarshal(bytes, &update)
 	if err != nil {
 		log.Println(err)
@@ -113,22 +97,22 @@ func webhookHandler(c *gin.Context) {
 	log.Printf("From: %+v Text: %+v\n", update.Message.From, update.Message.Text)
 }
 
-//
 //package app
 //
 //import (
-//"context"
-//"fmt"
-//tgbotapi "github.com/go-telegram/bot"
-//"os"
-//"os/signal"
-//"skat_bot/config"
-//handlers "skat_bot/internal/handlers"
-//repository "skat_bot/internal/repository"
-//"skat_bot/internal/service"
-//"skat_bot/pkg/client"
-//"skat_bot/pkg/logger"
-//"syscall"
+//	"context"
+//	"fmt"
+//	tgbotapi "github.com/go-telegram/bot"
+//	"os"
+//	"os/signal"
+//	"skat_bot/config"
+//	handlers "skat_bot/internal/handlers"
+//	repository "skat_bot/internal/repository"
+//	"skat_bot/internal/service"
+//	"skat_bot/internal/service/workerpool"
+//	"skat_bot/pkg/client"
+//	"skat_bot/pkg/logger"
+//	"syscall"
 //)
 //
 //func New(cfg *config.Config) {
@@ -153,7 +137,7 @@ func webhookHandler(c *gin.Context) {
 //	if err != nil {
 //		panic(err)
 //	}
-//
+//	worker := workerpool.NewDownload()
 //	srvc := service.New(rep)
 //	//err = srvc.DownloadVariant(ctx, models.Variant{FilePath: "documents/file_0.docx", Name: "xyu"})
 //	fmt.Println(err)
@@ -172,7 +156,7 @@ func webhookHandler(c *gin.Context) {
 //	if err != nil {
 //		panic(err)
 //	}
-//	handlers.New(bot, srvc, log)
+//	handlers.New(bot, srvc, log, worker)
 //	bot.DeleteWebhook(ctx, &tgbotapi.DeleteWebhookParams{
 //		true,
 //	})

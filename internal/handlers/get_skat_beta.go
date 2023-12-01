@@ -36,7 +36,7 @@ func (h BotHandler) GetSkatBeta() tgbotapi.HandlerFunc {
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, models.Subject{Variants: []models.Variant{
 			models.Variant{},
 		}})
-		h.log.Info().Str("GetSkatBeta", "ok")
+		h.log.Info().Str("GetSkatBeta", "ok").Msg(update.CallbackQuery.Sender.Username)
 	}
 }
 
@@ -47,6 +47,9 @@ func (h BotHandler) GetSkatBetaInstitute() tgbotapi.HandlerFunc {
 			ShowAlert:       false,
 		})
 		data := h.fsm.GetData(update.CallbackQuery.Message.Chat.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		instituteStr := strings.Split(update.CallbackQuery.Data, "_")[1]
@@ -87,7 +90,7 @@ func (h BotHandler) GetSkatBetaInstitute() tgbotapi.HandlerFunc {
 		}
 
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
-		h.log.Info().Str("GetSkatBetaInstitute", "ok")
+		h.log.Info().Str("GetSkatBetaInstitute", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 
@@ -99,6 +102,9 @@ func (h BotHandler) GetSkatBetaSubjectName() tgbotapi.HandlerFunc {
 			ShowAlert:       false,
 		})
 		data := h.fsm.GetData(update.CallbackQuery.Message.Chat.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		subjectName := strings.Split(update.CallbackQuery.Data, "_")[1]
@@ -106,9 +112,8 @@ func (h BotHandler) GetSkatBetaSubjectName() tgbotapi.HandlerFunc {
 		sems, err := h.service.GetUniqueSemesters(ctx, subjectName, currSubject.InstistuteNum, "", true)
 		if err != nil {
 			h.log.Error().Str("GetSkatBetaSubjectName", "error").Msg(err.Error())
-
 			SendError(ctx, b, update)
-			b.UnregisterStepHandler(update.Message.From.ID)
+			b.UnregisterStepHandler(update.CallbackQuery.Message.Chat.ID)
 			return
 		}
 		kb := keyboard.SemesterNumsTest(sems, 1, keyboard.GetSkatSemesterCommand, keyboard.PageSemesterUniquePaginatorData)
@@ -130,7 +135,7 @@ func (h BotHandler) GetSkatBetaSubjectName() tgbotapi.HandlerFunc {
 		}
 
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
-		h.log.Info().Str("GetSkatBetaSubjectName", "ok")
+		h.log.Info().Str("GetSkatBetaSubjectName", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 }
@@ -142,6 +147,9 @@ func (h BotHandler) GetSkatBetaSemester() tgbotapi.HandlerFunc {
 			ShowAlert:       false,
 		})
 		data := h.fsm.GetData(update.CallbackQuery.Message.Chat.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		semesterStr := strings.Split(update.CallbackQuery.Data, "_")[1]
@@ -150,7 +158,7 @@ func (h BotHandler) GetSkatBetaSemester() tgbotapi.HandlerFunc {
 			h.log.Error().Str("GetSkatBetaSemester", "error").Msg(err.Error())
 
 			SendError(ctx, b, update)
-			b.UnregisterStepHandler(update.Message.From.ID)
+			b.UnregisterStepHandler(update.CallbackQuery.Message.Chat.ID)
 			return
 		}
 		currSubject.Semester = sem
@@ -178,7 +186,7 @@ func (h BotHandler) GetSkatBetaSemester() tgbotapi.HandlerFunc {
 			return
 		}
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
-		h.log.Info().Str("GetSkatBetaSemester", "ok")
+		h.log.Info().Str("GetSkatBetaSemester", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 }
@@ -192,6 +200,9 @@ func (h BotHandler) GetSkatBetaSubjectType() tgbotapi.HandlerFunc {
 		})
 		h.fsm.ClearKeyboard(update.CallbackQuery.Sender.ID)
 		data := h.fsm.GetData(update.CallbackQuery.Message.Chat.ID)
+		if data == nil {
+			return
+		}
 		currSubject := data.(models.Subject)
 
 		typeName := strings.Split(update.CallbackQuery.Data, "_")[1]
@@ -216,7 +227,7 @@ func (h BotHandler) GetSkatBetaSubjectType() tgbotapi.HandlerFunc {
 			SendError(ctx, b, update)
 			return
 		}
-		h.log.Info().Str("GetSkatBetaSubjectType", "ok")
+		h.log.Info().Str("GetSkatBetaSubjectType", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}
 }

@@ -1,34 +1,23 @@
 package handlers
 
 import (
-	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram/bot"
 	"skat_bot/internal/fsm"
 	"skat_bot/internal/keyboard"
 	"skat_bot/internal/service"
 	log "skat_bot/pkg/logger"
-	"time"
 )
 
 type BotHandler struct {
-	service   service.Service
-	log       *log.Logger
-	fsm       fsm.Fsm
-	scheduler *gocron.Scheduler
-}
-type GroupHandler struct {
+	service service.Service
+	log     *log.Logger
+	fsm     fsm.Fsm
 }
 
 func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 	f := fsm.New()
-	botHandler := &BotHandler{s, log, f, gocron.NewScheduler(time.UTC)}
-	//get skat
-	//bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
-	//	keyboard.GetSkatCommand, tgbotapi.MatchTypeExact, botHandler.GetSkat())
-	////add skat
-	//bot.RegisterHandler(tgbotapi.HandlerTypeMessageText,
-	//	keyboard.AddSkatCommand, tgbotapi.MatchTypeExact, botHandler.AddSkat())
-	//back
+
+	botHandler := &BotHandler{s, log, f}
 
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		keyboard.Back,

@@ -52,7 +52,7 @@ select semester_number from
 	}
 	q += `) active_subject where num = 1`
 
-	q += "order by  semester_number"
+	q += " order by  semester_number"
 	if !asc {
 		q += " desc "
 	}
