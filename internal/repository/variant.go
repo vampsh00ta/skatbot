@@ -2,6 +2,7 @@ package psql
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"skat_bot/internal/repository/models"
 )
@@ -12,8 +13,23 @@ type Variant interface {
 	GetVariantsBySubjectId(ctx context.Context, subjectId int) ([]models.Variant, error)
 	GetVariantTypes(ctx context.Context) ([]models.Variant, error)
 	GetVariantbyId(ctx context.Context, id int) (models.Variant, error)
+	GetVariantbyTgid(ctx context.Context, id string) ([]models.Variant, error)
 }
 
+func (d Db) GetVariantbyTgid(ctx context.Context, id string) ([]models.Variant, error) {
+	var err error
+	fmt.Println(id)
+	q := `select * from variant  where tg_id = $1
+		 `
+	rows, err := d.client.Query(ctx, q, id)
+
+	variant, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Variant])
+	if err != nil {
+		return nil, err
+	}
+
+	return variant, nil
+}
 func (d Db) GetVariantbyId(ctx context.Context, id int) (models.Variant, error) {
 	var err error
 	//

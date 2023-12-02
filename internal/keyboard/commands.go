@@ -1,7 +1,9 @@
 package keyboard
 
 const (
-	AddSkatCommand            = "addSkat_"
+	AddSkatCommand    = "addSkat_"
+	GetMySkatsCommand = "getMySkats_"
+
 	AddSkatSemesterCommand    = "addSkatSemester_"
 	AddSkatInstituteCommand   = "addSkatInstitute_"
 	AddSkatSubjectNameCommand = "addSkatSubjectName_"

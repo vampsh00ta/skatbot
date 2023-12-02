@@ -28,8 +28,12 @@ func MainBeta() *tgmodels.InlineKeyboardMarkup {
 			{
 				{Text: "Получить скат", CallbackData: GetSkatCommand},
 			},
+
 			{
 				{Text: "Добавить скат", CallbackData: AddSkatCommand},
+			},
+			{
+				{Text: "Мои скаты", CallbackData: GetMySkatsCommand},
 			},
 		},
 	}

@@ -42,6 +42,7 @@ func VariantsTypesTest(variants []models.Variant, page int, command, paddingComm
 
 	return kb
 }
+
 func VariantsTypes(variants []models.Variant) *tgmodels.ReplyKeyboardMarkup {
 
 	kb := &tgmodels.ReplyKeyboardMarkup{

@@ -23,6 +23,11 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 		keyboard.Back,
 		tgbotapi.MatchTypeContains,
 		botHandler.Back())
+	//get my skats
+	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
+		keyboard.GetMySkatsCommand,
+		tgbotapi.MatchTypeContains,
+		botHandler.MySkats())
 	//add skat beta
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		keyboard.AddSkatCommand,

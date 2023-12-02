@@ -16,10 +16,18 @@ type Variant interface {
 	GetVariantbyId(ctx context.Context, id int) (models.Variant, error)
 	GetVariantsBySubject(ctx context.Context, subject models.Subject) ([]models.Variant, error)
 	GetVariantsBySubjectId(ctx context.Context, id int) ([]models.Variant, error)
-
+	GetVariantbyTgid(ctx context.Context, id string) ([]models.Variant, error)
 	GetVariantTypes(ctx context.Context) ([]models.Variant, error)
 	DownloadVariant(ctx context.Context, variant models.Variant) (string, *[]byte, error)
 	DownloadVariantById(ctx context.Context, id int) (string, *[]byte, error)
+}
+
+func (s service) GetVariantbyTgid(ctx context.Context, id string) ([]models.Variant, error) {
+	variant, err := s.rep.GetVariantbyTgid(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return variant, nil
 }
 
 func (s service) GetVariantbyId(ctx context.Context, id int) (models.Variant, error) {

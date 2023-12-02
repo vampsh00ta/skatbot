@@ -372,16 +372,14 @@ func (h BotHandler) AddSkatBetaFiles() tgbotapi.HandlerFunc {
 		if data == nil {
 			return
 		}
-		defer h.fsm.DeleteData(update.Message.From.ID)
 		currSubject := data.(models.Subject)
 
 		var fileId string
 		if update.Message.Document == nil && update.Message.Photo == nil {
 
 			b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-				ChatID:      update.Message.Chat.ID,
-				Text:        "Файл отсуствует, попробуй еще раз",
-				ReplyMarkup: keyboard.Main(),
+				ChatID: update.Message.Chat.ID,
+				Text:   "Файл отсуствует, попробуй еще раз",
 			})
 			return
 		}
