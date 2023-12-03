@@ -393,30 +393,17 @@ func (h BotHandler) AddSkatBetaFiles() tgbotapi.HandlerFunc {
 			currSubject.Variants[0].FileType = "photo"
 
 		}
-		subject, err := h.service.AddOrGetSubject(ctx, currSubject)
-		if err != nil {
-			h.log.Error().Str("AddSkatBetaFiles", "error").Msg(err.Error())
-			SendError(ctx, b, update)
-			return
-		}
-		if err != nil {
-			if err != nil {
-				h.log.Error().Str("AddSkatBetaFiles", "error").Msg(err.Error())
-				SendError(ctx, b, update)
-				return
-			}
-		}
 		currSubject.Variants[0].CreationTime = time.Now()
-		currSubject.Variants[0].SubjectId = subject.Id
 		currSubject.Variants[0].FileId = fileId
 		currSubject.Variants[0].TgId = strconv.Itoa(int(update.Message.From.ID))
 		currSubject.Variants[0].TgUsername = update.Message.From.Username
-
-		if err := h.service.AddVariant(ctx, currSubject.Variants[0]); err != nil {
+		subject, err := h.service.AddSkat(ctx, currSubject)
+		if err != nil {
 			h.log.Error().Str("AddSkatBetaFiles", "error").Msg(err.Error())
 			SendError(ctx, b, update)
 			return
 		}
+
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
 			Text:   "Файл добавлен",
