@@ -21,10 +21,7 @@ func (h BotHandler) AddSkatBeta() tgbotapi.HandlerFunc {
 		if err != nil {
 			h.log.Error().Str("AddSkatBeta", "error").Msg(err.Error())
 
-			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-				ChatID: update.CallbackQuery.Message.Chat.ID,
-				Text:   "Что-то пошло не так",
-			})
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 		}
 		kb := keyboard.InstituteNumsTest(insts, 1, keyboard.AddSkatInstituteCommand, keyboard.PageInstitutePaginatorData)
 		h.fsm.SetKeyboard(update.CallbackQuery.Sender.ID, kb)
@@ -58,18 +55,15 @@ func (h BotHandler) AddSkatBetaInstitute() tgbotapi.HandlerFunc {
 		inst, err := strconv.Atoi(instituteStr)
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaInstitute", "error").Msg(err.Error())
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 
-			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-				ChatID: update.CallbackQuery.Message.Chat.ID,
-				Text:   "Что-то пошло не так",
-			})
 		}
 		currSubject.InstistuteNum = inst
 
 		subjects, err := h.service.GetAllSubjectNames(ctx, true)
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaInstitute", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
@@ -83,7 +77,7 @@ func (h BotHandler) AddSkatBetaInstitute() tgbotapi.HandlerFunc {
 
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaInstitute", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			b.UnregisterStepHandler(update.CallbackQuery.Message.From.ID)
 
 			return
@@ -111,7 +105,7 @@ func (h BotHandler) AddSkatBetaSubjectName() tgbotapi.HandlerFunc {
 		sems, err := h.service.GetAllSemesters(ctx, true)
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaSubjectName", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
@@ -126,7 +120,7 @@ func (h BotHandler) AddSkatBetaSubjectName() tgbotapi.HandlerFunc {
 
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaSubjectName", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			b.UnregisterStepHandler(update.Message.From.ID)
 
 			return
@@ -154,7 +148,7 @@ func (h BotHandler) AddSkatBetaSemester() tgbotapi.HandlerFunc {
 		sem, err := strconv.Atoi(semesterStr)
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaSemester", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
@@ -163,7 +157,7 @@ func (h BotHandler) AddSkatBetaSemester() tgbotapi.HandlerFunc {
 		subjectsTypes, err := h.service.GetAllSubjectTypes(ctx, true)
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaSemester", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 		}
 		kb := keyboard.SubjectTypesTest(subjectsTypes, 1, keyboard.AddSkatSubjectTypeCommand, keyboard.PageInstitutePaginatorData)
@@ -177,7 +171,7 @@ func (h BotHandler) AddSkatBetaSemester() tgbotapi.HandlerFunc {
 
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaSemester", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 		}
 		h.fsm.AddData(update.CallbackQuery.Sender.ID, currSubject)
@@ -214,7 +208,7 @@ func (h BotHandler) AddSkatBetaSubjectType() tgbotapi.HandlerFunc {
 		})
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaSubjectType", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 		}
 		h.fsm.AddData(update.CallbackQuery.Sender.ID, currSubject)
@@ -248,7 +242,7 @@ func (h BotHandler) AddSkatBetaVariantType() tgbotapi.HandlerFunc {
 
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaVariantType", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 		}
 		h.fsm.AddData(update.CallbackQuery.Sender.ID, currSubject)
@@ -271,7 +265,7 @@ func (h BotHandler) AddSkatBetaVariant() tgbotapi.HandlerFunc {
 
 			if err != nil {
 				h.log.Error().Str("AddSkatBetaVariant", "error").Msg(err.Error())
-				SendError(ctx, b, update)
+				SendError(ctx, b, update.Message.From.ID)
 				b.UnregisterStepHandler(update.Message.From.ID)
 				return
 			}
@@ -279,7 +273,7 @@ func (h BotHandler) AddSkatBetaVariant() tgbotapi.HandlerFunc {
 		}
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaVariant", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.Message.From.ID)
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
@@ -310,7 +304,7 @@ func (h BotHandler) AddSkatBetaDesc() tgbotapi.HandlerFunc {
 		desc := text
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaDesc", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.Message.From.ID)
 			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
@@ -342,7 +336,7 @@ func (h BotHandler) AddSkatBetaGrade() tgbotapi.HandlerFunc {
 			grade, err := strconv.Atoi(update.Message.Text)
 			if err != nil {
 				h.log.Error().Str("AddSkatBetaGrade", "error").Msg(err.Error())
-				SendError(ctx, b, update)
+				SendError(ctx, b, update.Message.From.ID)
 				b.UnregisterStepHandler(update.Message.From.ID)
 				return
 			}
@@ -355,7 +349,7 @@ func (h BotHandler) AddSkatBetaGrade() tgbotapi.HandlerFunc {
 		})
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaGrade", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.Message.From.ID)
 			return
 		}
 		b.RegisterStepHandler(update.Message.From.ID, h.AddSkatBetaFiles(), nil)
@@ -400,7 +394,7 @@ func (h BotHandler) AddSkatBetaFiles() tgbotapi.HandlerFunc {
 		subject, err := h.service.AddSkat(ctx, currSubject)
 		if err != nil {
 			h.log.Error().Str("AddSkatBetaFiles", "error").Msg(err.Error())
-			SendError(ctx, b, update)
+			SendError(ctx, b, update.Message.From.ID)
 			return
 		}
 

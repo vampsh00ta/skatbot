@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
 )
 
-func SendError(ctx context.Context, bot *tgbotapi.Bot, update *models.Update) {
+func SendError(ctx context.Context, bot *tgbotapi.Bot, chatId int64) {
 	bot.SendMessage(ctx, &tgbotapi.SendMessageParams{
-		ChatID: update.CallbackQuery.Message.Chat.ID,
+		ChatID: chatId,
 		Text:   fmt.Sprintf("Что-то пошло не так"),
 	})
 
