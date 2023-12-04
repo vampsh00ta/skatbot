@@ -23,11 +23,12 @@ type Subject interface {
 func (d Db) AddSubject(ctx context.Context, subject models.Subject) (models.Subject, error) {
 	var err error
 	//
+
 	q := `insert into active_subject (name,semester_number,instistute_num,type_name)
 			values ($1,$2,$3,$4) returning id 
 		 `
 
-	if err = d.client.QueryRow(ctx, q,
+	if err = d.queryRow(ctx, q,
 		subject.Name,
 		subject.Semester,
 		subject.InstistuteNum,
@@ -47,7 +48,7 @@ func (d Db) GetAllSubjects(ctx context.Context) ([]models.Subject, error) {
 	q := `select   * from  subject
 		 `
 
-	rows, err := d.client.Query(ctx, q)
+	rows, err := d.query(ctx, q)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +102,7 @@ func (d Db) GetUniqueSubjects(ctx context.Context, instituteNum, semester int, s
 	if !asc {
 		q += "desc "
 	}
-	rows, err := d.client.Query(ctx, q, input...)
+	rows, err := d.query(ctx, q, input...)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +122,7 @@ func (d Db) GetSubjectsByName(ctx context.Context, name string, asc bool) ([]mod
 	if asc {
 		q += " order by semester "
 	}
-	rows, err := d.client.Query(ctx, q, name)
+	rows, err := d.query(ctx, q, name)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +142,7 @@ func (d Db) GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject,
 	if !asc {
 		q += " desc "
 	}
-	rows, err := d.client.Query(ctx, q)
+	rows, err := d.query(ctx, q)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +198,7 @@ select type_name from
 	if !asc {
 		q += " desc "
 	}
-	rows, err := d.client.Query(ctx, q, input...)
+	rows, err := d.query(ctx, q, input...)
 	types, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Subject])
 	if err != nil {
 		return nil, err
@@ -211,7 +212,7 @@ func (d Db) GetSubject(ctx context.Context, subject models.Subject) (models.Subj
 	q := `select   id from  active_subject 
             where name = $1 and semester_number = $2 and type_name = $3 and instistute_num = $4
 		 `
-	if err := d.client.QueryRow(ctx, q, subject.Name, subject.Semester, subject.TypeName, subject.InstistuteNum).
+	if err := d.queryRow(ctx, q, subject.Name, subject.Semester, subject.TypeName, subject.InstistuteNum).
 		Scan(&subject.Id); err != nil {
 		return models.Subject{}, err
 	}
@@ -226,7 +227,7 @@ func (d Db) GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Subject,
 	if !asc {
 		q += "  desc "
 	}
-	rows, err := d.client.Query(ctx, q)
+	rows, err := d.query(ctx, q)
 	if err != nil {
 		return nil, err
 	}

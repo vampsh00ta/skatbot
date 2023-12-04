@@ -2,7 +2,6 @@ package psql
 
 import (
 	"context"
-	"fmt"
 	"github.com/jackc/pgx/v5"
 	"skat_bot/internal/repository/models"
 )
@@ -18,7 +17,6 @@ type Variant interface {
 
 func (d Db) GetVariantbyTgid(ctx context.Context, id string) ([]models.Variant, error) {
 	var err error
-	fmt.Println(id)
 	q := `select * from variant  where tg_id = $1
 		 `
 	rows, err := d.client.Query(ctx, q, id)
@@ -54,8 +52,9 @@ func (d Db) GetVariantbyId(ctx context.Context, id int) (models.Variant, error) 
 func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Variant, error) {
 	var err error
 	//
+
 	q := `insert into variant (subject_id,name,num,grade,creation_time,type_name,file_id,file_path,tg_id,tg_username,file_type)
-			values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id 
+			values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning id 
 		 `
 	//loc, _ := time.LoadLocation("Europe/Moscow")
 	//t := time.Now().In(loc)
@@ -63,7 +62,7 @@ func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Vari
 	//if err != nil {
 	//	return nil
 	//}
-	if err = d.client.QueryRow(ctx, q,
+	if err = d.queryRow(ctx, q,
 		variant.SubjectId,
 		variant.Name,
 		variant.Num,
@@ -92,7 +91,7 @@ func (d Db) GetVariantsBySubjectId(ctx context.Context, subjectId int) ([]models
 	q := `select * from  variant where subject_id = $1
 		 `
 
-	rows, err := d.client.Query(ctx, q, subjectId)
+	rows, err := d.query(ctx, q, subjectId)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +107,7 @@ func (d Db) GetVariantTypes(ctx context.Context) ([]models.Variant, error) {
 	//
 	q := `select name as type_name from variant_type 
 		 `
-	rows, err := d.client.Query(ctx, q)
+	rows, err := d.query(ctx, q)
 	if err != nil {
 		return nil, err
 	}

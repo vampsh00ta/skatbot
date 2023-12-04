@@ -56,7 +56,7 @@ select semester_number from
 	if !asc {
 		q += " desc "
 	}
-	rows, err := d.client.Query(ctx, q, input...)
+	rows, err := d.query(ctx, q, input...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (d Db) GetAllSemestersBySubjectName(ctx context.Context, subjectname string
 	if !asc {
 		q += " desc "
 	}
-	rows, err := d.client.Query(ctx, q, subjectname)
+	rows, err := d.query(ctx, q, subjectname)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (d Db) GetAllSemesters(ctx context.Context, asc bool) ([]int, error) {
 	if !asc {
 		q += " desc "
 	}
-	rows, err := d.client.Query(ctx, q)
+	rows, err := d.query(ctx, q)
 	if err != nil {
 		return nil, err
 	}
