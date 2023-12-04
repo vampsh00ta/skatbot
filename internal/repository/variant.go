@@ -54,7 +54,7 @@ func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Vari
 	//
 
 	q := `insert into variant (subject_id,name,num,grade,creation_time,type_name,file_id,file_path,tg_id,tg_username,file_type)
-			values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning id 
+			values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id 
 		 `
 	//loc, _ := time.LoadLocation("Europe/Moscow")
 	//t := time.Now().In(loc)

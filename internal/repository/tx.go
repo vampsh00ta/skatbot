@@ -6,6 +6,7 @@ import (
 )
 
 func (d Db) WithTransaction(ctx context.Context, f func(ctx context.Context) error) error {
+
 	tx, err := d.client.Begin(ctx)
 	defer tx.Commit(ctx)
 	if err != nil {

@@ -17,9 +17,26 @@ type Subject interface {
 	GetAllSubjectNames(ctx context.Context, asc bool) ([]models.Subject, error)
 	GetUniqueSubjectTypes(ctx context.Context, subjectName string, semester, instituteNum int, asc bool) ([]models.Subject, error)
 	GetAllSubjectTypes(ctx context.Context, asc bool) ([]models.Subject, error)
+	AddOrGetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 	//AddOrGetSubject(ctx context.Context, subject models.Subject) ([]int, error)
 }
 
+func (d Db) AddOrGetSubject(ctx context.Context, subject models.Subject) (models.Subject, error) {
+	var err error
+	subj, err := d.GetSubject(ctx, subject)
+	if err != nil && err.Error() != "no rows in result set" {
+		return models.Subject{}, err
+	}
+	if subj.Id != 0 {
+		return subj, nil
+	}
+	newSubject, err := d.AddSubject(ctx, subject)
+	if err != nil {
+		return models.Subject{}, err
+	}
+	return newSubject, nil
+
+}
 func (d Db) AddSubject(ctx context.Context, subject models.Subject) (models.Subject, error) {
 	var err error
 	//
