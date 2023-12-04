@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -9,37 +10,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-//func (h BotHandler) InstituteUniquePaginator() tgbotapi.HandlerFunc {
-//	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-//		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
-//			CallbackQueryID: update.CallbackQuery.ID,
-//			ShowAlert:       false,
-//		})
-//		buttonData := update.CallbackQuery.Data
-//		pageStr := strings.Split(buttonData, "_")[1]
-//		page, err := strconv.Atoi(pageStr)
-//		if err != nil {
-//			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-//				ChatID: update.CallbackQuery.Message.Chat.ID,
-//				Text:   "Что-то пошло не так",
-//			})
-//		}
-//		insts, err := h.service.GetUniqueInstitutes(ctx, "", 0, "", true)
-//		if err != nil {
-//			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-//				ChatID: update.CallbackQuery.Message.Chat.ID,
-//				Text:   "Что-то пошло не так",
-//			})
-//		}
-//		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
-//			ChatID:    update.CallbackQuery.Message.Chat.ID,
-//			MessageID: update.CallbackQuery.Message.ID,
-//
-//			ReplyMarkup: keyboard.InstituteNumsTest(insts, page),
-//		})
-//	}
-//}
 
 func (h BotHandler) InstitutePaginator() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
@@ -87,40 +57,6 @@ func (h BotHandler) InstitutePaginator() tgbotapi.HandlerFunc {
 		})
 	}
 }
-
-//func (h BotHandler) SubjectNameUniquePaginator() tgbotapi.HandlerFunc {
-//	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-//		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
-//			CallbackQueryID: update.CallbackQuery.ID,
-//			ShowAlert:       false,
-//		})
-//		buttonData := update.CallbackQuery.Data
-//
-//		data := h.fsm.GetData(update.CallbackQuery.Message.From.ID)
-//		subject := data.(models.Subject)
-//		pageStr := strings.Split(buttonData, "_")[1]
-//		page, err := strconv.Atoi(pageStr)
-//		if err != nil {
-//			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-//				ChatID: update.CallbackQuery.Message.Chat.ID,
-//				Text:   "Что-то пошло не так",
-//			})
-//		}
-//		subjects, err := h.service.GetUniqueSubjects(ctx, subject.Id, 0, "", true)
-//		if err != nil {
-//			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-//				ChatID: update.CallbackQuery.Message.Chat.ID,
-//				Text:   "Что-то пошло не так",
-//			})
-//		}
-//		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
-//			ChatID:    update.CallbackQuery.Message.Chat.ID,
-//			MessageID: update.CallbackQuery.Message.ID,
-//
-//			ReplyMarkup: keyboard.SubjectNamesTest(subjects, page),
-//		})
-//	}
-//}
 
 func (h BotHandler) SubjectNamePaginator() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
@@ -171,40 +107,6 @@ func (h BotHandler) SubjectNamePaginator() tgbotapi.HandlerFunc {
 	}
 }
 
-//func (h BotHandler) SemesterUniquePaginator() tgbotapi.HandlerFunc {
-//	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-//		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
-//			CallbackQueryID: update.CallbackQuery.ID,
-//			ShowAlert:       false,
-//		})
-//		buttonData := update.CallbackQuery.Data
-//
-//		data := h.fsm.GetData(update.CallbackQuery.Message.From.ID)
-//		subject := data.(models.Subject)
-//		pageStr := strings.Split(buttonData, "_")[1]
-//		page, err := strconv.Atoi(pageStr)
-//		if err != nil {
-//			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-//				ChatID: update.CallbackQuery.Message.Chat.ID,
-//				Text:   "Что-то пошло не так",
-//			})
-//		}
-//		sems, err := h.service.GetUniqueSemesters(ctx, subject.Name, subject.InstistuteNum, "", true)
-//		if err != nil {
-//			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-//				ChatID: update.CallbackQuery.Message.Chat.ID,
-//				Text:   "Что-то пошло не так",
-//			})
-//		}
-//		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
-//			ChatID:    update.CallbackQuery.Message.Chat.ID,
-//			MessageID: update.CallbackQuery.Message.ID,
-//
-//			ReplyMarkup: keyboard.SemesterNumsTest(sems, page),
-//		})
-//	}
-//}
-
 func (h BotHandler) SemesterPaginator() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
@@ -254,41 +156,6 @@ func (h BotHandler) SemesterPaginator() tgbotapi.HandlerFunc {
 	}
 }
 
-//func (h BotHandler) SubjecTypeUniquePaginator() tgbotapi.HandlerFunc {
-//	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
-//		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
-//			CallbackQueryID: update.CallbackQuery.ID,
-//			ShowAlert:       false,
-//		})
-//		buttonData := update.CallbackQuery.Data
-//
-//		data := h.fsm.GetData(update.CallbackQuery.Message.From.ID)
-//		subject := data.(models.Subject)
-//
-//		pageStr := strings.Split(buttonData, "_")[1]
-//		page, err := strconv.Atoi(pageStr)
-//		if err != nil {
-//			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-//				ChatID: update.CallbackQuery.Message.Chat.ID,
-//				Text:   "Что-то пошло не так",
-//			})
-//		}
-//		types, err := h.service.GetUniqueSubjectTypes(ctx, subject.Name, subject.Semester, subject.InstistuteNum, true)
-//		if err != nil {
-//			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-//				ChatID: update.CallbackQuery.Message.Chat.ID,
-//				Text:   "Что-то пошло не так",
-//			})
-//		}
-//		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
-//			ChatID:    update.CallbackQuery.Message.Chat.ID,
-//			MessageID: update.CallbackQuery.Message.ID,
-//
-//			ReplyMarkup: keyboard.SubjectTypesTest(types, page),
-//		})
-//	}
-//}
-
 func (h BotHandler) SubjecTypePaginator() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
@@ -332,6 +199,44 @@ func (h BotHandler) SubjecTypePaginator() tgbotapi.HandlerFunc {
 			MessageID: update.CallbackQuery.Message.ID,
 
 			ReplyMarkup: keyboard.SubjectTypesTest(types, page, command, paginator),
+		})
+	}
+}
+
+func (h BotHandler) MyVariantsPaginator() tgbotapi.HandlerFunc {
+	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
+		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
+			CallbackQueryID: update.CallbackQuery.ID,
+			ShowAlert:       false,
+		})
+		buttonData := update.CallbackQuery.Data
+
+		pageStr := strings.Split(buttonData, "_")[1]
+		page, err := strconv.Atoi(pageStr)
+		if err != nil {
+			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+				ChatID: update.CallbackQuery.Message.Chat.ID,
+				Text:   "Что-то пошло не так",
+			})
+		}
+		userId := update.CallbackQuery.Sender.ID
+		variants, err := h.service.GetVariantbyTgid(ctx, strconv.Itoa(int(userId)))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		if err != nil {
+			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+				ChatID: update.CallbackQuery.Message.Chat.ID,
+				Text:   "Что-то пошло не так",
+			})
+		}
+		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
+			ChatID:    update.CallbackQuery.Message.Chat.ID,
+			MessageID: update.CallbackQuery.Message.ID,
+
+			ReplyMarkup: keyboard.MyVariantsWithDelete(variants, userId,
+				page, keyboard.DeleteSkatVariantCommand, keyboard.PageMyVariantsPaginatorData),
 		})
 	}
 }

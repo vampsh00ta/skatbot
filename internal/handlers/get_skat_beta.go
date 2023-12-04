@@ -6,7 +6,6 @@ import (
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
 	"skat_bot/internal/repository/models"
-	"skat_bot/internal/response"
 	"strconv"
 	"strings"
 )
@@ -215,7 +214,7 @@ func (h BotHandler) GetSkatBetaSubjectType() tgbotapi.HandlerFunc {
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID:      update.CallbackQuery.Message.Chat.ID,
 			Text:        "Доступные файлы",
-			ReplyMarkup: response.VariantsWithDelete(variants, update.CallbackQuery.Message.Chat.ID),
+			ReplyMarkup: keyboard.VariantsWithDelete(variants, update.CallbackQuery.Message.Chat.ID),
 		})
 
 		if err != nil {

@@ -25,7 +25,7 @@ func (h BotHandler) DeleteSkat() tgbotapi.HandlerFunc {
 			return
 		}
 
-		kb := keyboard.MyVariantsWithDelete(variants, userId)
+		kb := keyboard.MyVariantsWithDelete(variants, userId, 1, keyboard.DeleteSkatVariantCommand, keyboard.PageMyVariantsPaginatorData)
 		h.fsm.SetKeyboard(update.CallbackQuery.Sender.ID, kb)
 		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
 			ChatID:      update.CallbackQuery.Message.Chat.ID,

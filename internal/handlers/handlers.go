@@ -89,6 +89,9 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 		keyboard.PageSubjectNamePaginatorData, tgbotapi.MatchTypeContains, botHandler.SubjectNamePaginator())
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		keyboard.PageSubjectTypePaginatorData, tgbotapi.MatchTypeContains, botHandler.SubjecTypePaginator())
+	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
+		keyboard.PageMyVariantsPaginatorData, tgbotapi.MatchTypeContains, botHandler.MyVariantsPaginator())
+
 	//pass callback
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		"pass", tgbotapi.MatchTypePrefix, botHandler.Pass())
