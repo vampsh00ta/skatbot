@@ -85,11 +85,18 @@ func (s service) GetVariantsBySubjectId(ctx context.Context, id int) ([]models.V
 	return variants, nil
 }
 func (s service) GetVariantsBySubject(ctx context.Context, subject models.Subject) ([]models.Variant, error) {
-	subject, err := s.rep.GetSubject(ctx, subject)
-	if err != nil {
-		return nil, err
-	}
-	variants, err := s.rep.GetVariantsBySubjectId(ctx, subject.Id)
+	var variants []models.Variant
+	err := s.rep.WithTransaction(ctx, func(ctx context.Context) error {
+		subject, err := s.rep.GetSubject(ctx, subject)
+		if err != nil {
+			return err
+		}
+		variants, err = s.rep.GetVariantsBySubjectId(ctx, subject.Id)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
