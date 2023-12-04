@@ -64,3 +64,26 @@ func addBack(kb *tgmodels.InlineKeyboardMarkup) {
 	}
 	(*kb).InlineKeyboard = append((*kb).InlineKeyboard, res)
 }
+func minNum(a, b int) int {
+	if a < pageAmount {
+		return a
+	}
+	if b < pageAmount {
+		return b
+	}
+	return pageAmount
+}
+func Pass() *tgmodels.ReplyKeyboardMarkup {
+
+	kb := &tgmodels.ReplyKeyboardMarkup{
+		ResizeKeyboard: true,
+		Keyboard: [][]tgmodels.KeyboardButton{
+
+			{
+				{Text: "Пропуск"},
+			},
+		},
+	}
+
+	return kb
+}

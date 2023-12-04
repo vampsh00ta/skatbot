@@ -9,6 +9,7 @@ const (
 	AddSkatSubjectNameCommand = "addSkatSubjectName_"
 	AddSkatSubjectTypeCommand = "addSkatSubjectType_"
 	AddSkatVariantTypeCommand = "addSkatVariantType_"
+	DeleteSkatVariantCommand  = "deleteVariant_"
 )
 const (
 	GetSkatCommand            = "getSkat_"
@@ -16,6 +17,9 @@ const (
 	GetSkatInstituteCommand   = "getSkatInstitute_"
 	GetSkatSubjectNameCommand = "getSkatSubjectName_"
 	GetSkatSubjectTypeCommand = "getSkatSubjectType_"
+)
+const (
+	pageAmount = 8
 )
 
 const (
@@ -32,4 +36,7 @@ const (
 	PageSemesterUniquePaginatorData = "#unique#semesterPage_"
 
 	PageVariantTypePaginatorData = "variantTypePage_"
+
+	PageMyVariantsPaginatorData = "myVariantsPage_"
+	PageVariantsPaginatorData   = "variantsPage_"
 )
