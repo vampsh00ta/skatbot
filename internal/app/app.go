@@ -56,7 +56,7 @@ func New(cfg *config.Config) {
 		panic(err)
 	}
 	bot.SetWebhook(ctx, &tgbotapi.SetWebhookParams{
-		URL: "https://751c-95-24-69-216.ngrok-free.app" + "/webhook" + cfg.Apitoken,
+		URL: "https://6c2b-95-24-69-216.ngrok-free.app" + "/webhook" + cfg.Apitoken,
 	})
 	if err != nil {
 		panic(err)

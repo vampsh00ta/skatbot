@@ -13,13 +13,37 @@ const (
 
 type Variant interface {
 	AddVariant(ctx context.Context, variant models.Variant) error
+	DeleteVariantById(ctx context.Context, id int) error
 	GetVariantbyId(ctx context.Context, id int) (models.Variant, error)
 	GetVariantsBySubject(ctx context.Context, subject models.Subject) ([]models.Variant, error)
 	GetVariantsBySubjectId(ctx context.Context, id int) ([]models.Variant, error)
 	GetVariantbyTgid(ctx context.Context, id string) ([]models.Variant, error)
+
 	GetVariantTypes(ctx context.Context) ([]models.Variant, error)
 	DownloadVariant(ctx context.Context, variant models.Variant) (string, *[]byte, error)
 	DownloadVariantById(ctx context.Context, id int) (string, *[]byte, error)
+}
+
+func (s service) DeleteVariantById(ctx context.Context, id int) error {
+	err := s.rep.WithTransaction(ctx, func(ctx context.Context) error {
+		variant, err := s.rep.GetVariantbyId(ctx, id)
+		if err != nil {
+			return err
+		}
+		subjectVariats, err := s.rep.GetVariantsBySubjectId(ctx, variant.SubjectId)
+		if err != nil {
+			return err
+		}
+		if len(subjectVariats) == 1 {
+			err = s.rep.DeleteSubjectById(ctx, variant.SubjectId)
+
+		} else {
+			err = s.rep.DeleteVariantById(ctx, id)
+		}
+
+		return err
+	})
+	return err
 }
 
 func (s service) GetVariantbyTgid(ctx context.Context, id string) ([]models.Variant, error) {

@@ -19,7 +19,7 @@ func (d Db) GetVariantbyTgid(ctx context.Context, id string) ([]models.Variant, 
 	var err error
 	q := `select * from variant  where tg_id = $1
 		 `
-	rows, err := d.client.Query(ctx, q, id)
+	rows, err := d.query(ctx, q, id)
 
 	variant, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[models.Variant])
 	if err != nil {
@@ -33,7 +33,7 @@ func (d Db) GetVariantbyId(ctx context.Context, id int) (models.Variant, error) 
 	//
 	q := `select * from variant  where id = $1
 		 `
-	rows, err := d.client.Query(ctx, q, id)
+	rows, err := d.query(ctx, q, id)
 	if err != nil {
 		return models.Variant{}, err
 	}
@@ -81,8 +81,17 @@ func (d Db) AddVariant(ctx context.Context, variant models.Variant) (models.Vari
 }
 
 func (d Db) DeleteVariantById(ctx context.Context, variantId int) error {
-	//TODO implement me
-	panic("implement me")
+	var err error
+	//
+
+	q := `delete  from  variant where id = $1 returning id
+			
+		 `
+	if err = d.queryRow(ctx, q, variantId).Scan(&variantId); err != nil {
+
+		return err
+	}
+	return nil
 }
 
 func (d Db) GetVariantsBySubjectId(ctx context.Context, subjectId int) ([]models.Variant, error) {

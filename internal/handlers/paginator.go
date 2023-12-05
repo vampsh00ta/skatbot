@@ -203,16 +203,17 @@ func (h BotHandler) SubjecTypePaginator() tgbotapi.HandlerFunc {
 	}
 }
 
-func (h BotHandler) MyVariantsPaginator() tgbotapi.HandlerFunc {
+func (h BotHandler) VariantsPaginator() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
 			CallbackQueryID: update.CallbackQuery.ID,
 			ShowAlert:       false,
 		})
 		buttonData := update.CallbackQuery.Data
+		var err error
+		splited := strings.Split(buttonData, "_")
 
-		pageStr := strings.Split(buttonData, "_")[1]
-		page, err := strconv.Atoi(pageStr)
+		page, err := strconv.Atoi(splited[1])
 		if err != nil {
 			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 				ChatID: update.CallbackQuery.Message.Chat.ID,
@@ -220,7 +221,28 @@ func (h BotHandler) MyVariantsPaginator() tgbotapi.HandlerFunc {
 			})
 		}
 		userId := update.CallbackQuery.Sender.ID
-		variants, err := h.service.GetVariantbyTgid(ctx, strconv.Itoa(int(userId)))
+		var paginator string
+		var command string
+		var variants []models.Variant
+		var kb tgmodels.ReplyMarkup
+		if len(strings.Split(splited[0], "#")) > 1 {
+			variants, err = h.service.GetVariantbyTgid(ctx, strconv.Itoa(int(userId)))
+			paginator = keyboard.PageMyVariantsPaginatorData
+			command = keyboard.DeleteMySkatVariantCommand
+			kb = keyboard.MyVariantsWithDelete(variants, userId,
+				page, command, paginator)
+
+		} else {
+			data := h.fsm.GetData(update.CallbackQuery.Message.Chat.ID)
+			subject := data.(models.Subject)
+
+			variants, err = h.service.GetVariantsBySubject(ctx, subject)
+			paginator = keyboard.PageVariantsPaginatorData
+			command = keyboard.DeleteSkatVariantCommand
+			kb = keyboard.VariantsWithDelete(variants, userId,
+				page, command, paginator)
+
+		}
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -235,8 +257,7 @@ func (h BotHandler) MyVariantsPaginator() tgbotapi.HandlerFunc {
 			ChatID:    update.CallbackQuery.Message.Chat.ID,
 			MessageID: update.CallbackQuery.Message.ID,
 
-			ReplyMarkup: keyboard.MyVariantsWithDelete(variants, userId,
-				page, keyboard.DeleteSkatVariantCommand, keyboard.PageMyVariantsPaginatorData),
+			ReplyMarkup: kb,
 		})
 	}
 }

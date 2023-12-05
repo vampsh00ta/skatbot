@@ -210,11 +210,17 @@ func (h BotHandler) GetSkatBetaSubjectType() tgbotapi.HandlerFunc {
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 		}
+		if len(variants) != 0 {
+			currSubject.Id = variants[0].SubjectId
+			h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
+
+		}
 
 		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-			ChatID:      update.CallbackQuery.Message.Chat.ID,
-			Text:        "Доступные файлы",
-			ReplyMarkup: keyboard.VariantsWithDelete(variants, update.CallbackQuery.Message.Chat.ID),
+			ChatID: update.CallbackQuery.Message.Chat.ID,
+			Text:   "Доступные файлы",
+			ReplyMarkup: keyboard.VariantsWithDelete(variants,
+				update.CallbackQuery.Message.Chat.ID, 1, keyboard.DeleteSkatVariantCommand, keyboard.PageVariantsPaginatorData),
 		})
 
 		if err != nil {

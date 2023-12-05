@@ -28,6 +28,11 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 		keyboard.GetMySkatsCommand,
 		tgbotapi.MatchTypeContains,
 		botHandler.MySkats())
+	//detele my skats
+	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
+		keyboard.DeleteSkatVariantCommand,
+		tgbotapi.MatchTypeContains,
+		botHandler.DeleteSkat())
 	//add skat beta
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		keyboard.AddSkatCommand,
@@ -79,7 +84,7 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 	//download skat
 
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
-		"variant", tgbotapi.MatchTypePrefix, botHandler.DownloadFile())
+		keyboard.DownloadVariant, tgbotapi.MatchTypePrefix, botHandler.DownloadFile())
 	//paginators
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		keyboard.PageInstitutePaginatorData, tgbotapi.MatchTypeContains, botHandler.InstitutePaginator())
@@ -90,7 +95,7 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		keyboard.PageSubjectTypePaginatorData, tgbotapi.MatchTypeContains, botHandler.SubjecTypePaginator())
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
-		keyboard.PageMyVariantsPaginatorData, tgbotapi.MatchTypeContains, botHandler.MyVariantsPaginator())
+		keyboard.PageVariantsPaginatorData, tgbotapi.MatchTypeContains, botHandler.VariantsPaginator())
 
 	//pass callback
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,

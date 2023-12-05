@@ -23,7 +23,7 @@ func MyVariantsWithDelete(variants []models.Variant, id int64, page int, command
 			{
 				{Text: "Описание", CallbackData: "pass"},
 				{Text: "Вариант", CallbackData: "pass"},
-				{Text: "Скачать файлы", CallbackData: "variant_all_" + variants[0].TgId},
+				{Text: "Скачать файлы", CallbackData: DownloadVariant + "all_" + variants[0].TgId},
 				{Text: "Удалить файлы", CallbackData: "deleteAllVariants_" + variants[0].TgId},
 			},
 		},
@@ -49,7 +49,9 @@ func MyVariantsWithDelete(variants []models.Variant, id int64, page int, command
 		deleteData := deleteDataConst
 		emodjiDelete := ""
 		if variant.TgId == strconv.Itoa(int(id)) {
-			deleteData += strconv.Itoa(int(id))
+
+			deleteData += strconv.Itoa(variant.Id)
+
 			emodjiDelete = "✅"
 		} else {
 			deleteData = "pass"
@@ -65,7 +67,7 @@ func MyVariantsWithDelete(variants []models.Variant, id int64, page int, command
 				Text: ifNilNum(variant.Num), CallbackData: "pass",
 			},
 			{
-				Text: "⬇️", CallbackData: "variant_" + strconv.Itoa(variant.Id),
+				Text: "⬇️", CallbackData: DownloadVariant + strconv.Itoa(variant.Id),
 			},
 			{Text: emodjiDelete, CallbackData: deleteData},
 		}
@@ -84,7 +86,7 @@ func Variants(variants []models.Variant) *tgmodels.InlineKeyboardMarkup {
 			{
 				{Text: "Описание", CallbackData: "pass"},
 				{Text: "Вариант", CallbackData: "pass"},
-				{Text: "Скачать файлы", CallbackData: "variant_all_" + strconv.Itoa(variants[0].SubjectId)},
+				{Text: "Скачать файлы", CallbackData: DownloadVariant + "all_" + strconv.Itoa(variants[0].SubjectId)},
 			},
 		},
 	}
@@ -110,7 +112,7 @@ func Variants(variants []models.Variant) *tgmodels.InlineKeyboardMarkup {
 				Text: ifNilNum(variant.Num), CallbackData: "pass",
 			},
 			{
-				Text: "⬇️", CallbackData: "variant_" + strconv.Itoa(variant.Id),
+				Text: "⬇️", CallbackData: DownloadVariant + strconv.Itoa(variant.Id),
 			},
 		}
 		kb.InlineKeyboard = append(kb.InlineKeyboard, res)
@@ -119,13 +121,13 @@ func Variants(variants []models.Variant) *tgmodels.InlineKeyboardMarkup {
 
 	return kb
 }
-func VariantsWithDelete(variants []models.Variant, id int64) *tgmodels.InlineKeyboardMarkup {
+func VariantsWithDelete(variants []models.Variant, id int64, page int, command, paddingCommand string) *tgmodels.InlineKeyboardMarkup {
 	kb := &tgmodels.InlineKeyboardMarkup{
 		InlineKeyboard: [][]tgmodels.InlineKeyboardButton{
 			{
 				{Text: "Описание", CallbackData: "pass"},
 				{Text: "Вариант", CallbackData: "pass"},
-				{Text: "Скачать файлы", CallbackData: "variant_all_" + strconv.Itoa(variants[0].SubjectId)},
+				{Text: "Скачать файлы", CallbackData: DownloadVariant + "all_" + strconv.Itoa(variants[0].SubjectId)},
 				{Text: "Удалить файл", CallbackData: "pass" + strconv.Itoa(variants[0].SubjectId)},
 			},
 		},
@@ -142,13 +144,17 @@ func VariantsWithDelete(variants []models.Variant, id int64) *tgmodels.InlineKey
 		}
 		return str
 	}
-	deleteDataConst := "deleteVariant_" + strconv.Itoa(int(id)) + "_"
-	for _, variant := range variants {
+	deleteDataConst := command + strconv.Itoa(int(id)) + "_"
+	for i := (page - 1) * pageAmount; i < (page-1)*pageAmount+minNum(pageAmount, len(variants)-(page-1)*pageAmount); i++ {
+		if i == len(variants) {
+			break
+		}
+		variant := variants[i]
 
 		deleteData := deleteDataConst
 		emodjiDelete := ""
 		if variant.TgId == strconv.Itoa(int(id)) {
-			deleteData += strconv.Itoa(int(id))
+			deleteData += strconv.Itoa(variant.Id)
 			emodjiDelete = "✅"
 		} else {
 			deleteData = "pass"
@@ -164,13 +170,14 @@ func VariantsWithDelete(variants []models.Variant, id int64) *tgmodels.InlineKey
 				Text: ifNilNum(variant.Num), CallbackData: "pass",
 			},
 			{
-				Text: "⬇️", CallbackData: "variant_" + strconv.Itoa(variant.Id),
+				Text: "⬇️", CallbackData: DownloadVariant + strconv.Itoa(variant.Id),
 			},
 			{Text: emodjiDelete, CallbackData: deleteData},
 		}
 		kb.InlineKeyboard = append(kb.InlineKeyboard, res)
 
 	}
+	addPadding(kb, page, len(variants), paddingCommand)
 
 	return kb
 }

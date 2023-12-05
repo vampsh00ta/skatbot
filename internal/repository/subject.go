@@ -10,6 +10,7 @@ import (
 
 type Subject interface {
 	AddSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
+	DeleteSubjectById(ctx context.Context, subjectId int) error
 	GetSubject(ctx context.Context, subject models.Subject) (models.Subject, error)
 	GetAllSubjects(ctx context.Context) ([]models.Subject, error)
 	GetUniqueSubjects(ctx context.Context, instituteNum, semester int, subjectType string, asc bool) ([]models.Subject, error)
@@ -21,6 +22,20 @@ type Subject interface {
 	//AddOrGetSubject(ctx context.Context, subject models.Subject) ([]int, error)
 }
 
+func (d Db) DeleteSubjectById(ctx context.Context, subjectId int) error {
+	var err error
+	//
+
+	q := `delete from active_subject where id = $1  returning id
+		 `
+
+	if err = d.queryRow(ctx, q, subjectId).Scan(&subjectId); err != nil {
+
+		return err
+	}
+	return nil
+
+}
 func (d Db) AddOrGetSubject(ctx context.Context, subject models.Subject) (models.Subject, error) {
 	var err error
 	subj, err := d.GetSubject(ctx, subject)
