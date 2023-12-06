@@ -13,5 +13,5 @@ func main() {
 		panic(err)
 	}
 
-	app.New(cfg)
+	app.NewWebhook(cfg)
 }

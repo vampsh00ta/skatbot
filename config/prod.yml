@@ -4,7 +4,7 @@ app:
 
 tg:
   apitoken: "6352576956:AAH1icJcTeDiTI7ppqTuSrXZ8QdQ_sZAGYU"
-  baseURL: "skatbot-production.up.railway.app"
+  baseURL: "skatbot-production-3751.up.railway.app"
 http:
   port: '8000'
 logger:
@@ -13,9 +13,9 @@ logger:
 
 postgres:
   username: "postgres"
-  password: "Ae6BcFaBc6eCgB6A5be1EaADbDbGgada"
+  password: "ab1C42Ca4dEF4E35-AG22gGc4aB1A4*c"
   host: "roundhouse.proxy.rlwy.net"
-  port: "53113"
+  port: "31519"
   name: "railway"
   pool_max: 10
 
