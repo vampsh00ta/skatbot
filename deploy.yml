@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skatbot-deploy
+  labels:
+    env: prod
+    app: skat
+spec:
+  selector:
+    matchLabels:
+      env: prod
+      app: skatbot
+
+  template:
+    metadata:
+      labels:
+        env: prod
+        app: skatbot
+    spec:
+      containers:
+        - name: skatbot-pod
+          image:  op1umsh00ta/skatbot:latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: skat-autoscalling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v2
+    kind: Deployment
+    name: skatbot-deploy
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: skatbot-service
+spec:
+  selector:
+    env: prod
+    app: skatbot
+
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+  type: LoadBalancer
