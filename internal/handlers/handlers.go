@@ -93,7 +93,7 @@ func New(bot *tgbotapi.Bot, s service.Service, log *log.Logger) {
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		keyboard.PageSubjectNamePaginatorData, tgbotapi.MatchTypeContains, botHandler.SubjectNamePaginator())
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
-		keyboard.PageSubjectTypePaginatorData, tgbotapi.MatchTypeContains, botHandler.SubjecTypePaginator())
+		keyboard.PageSubjectTypePaginatorData, tgbotapi.MatchTypeContains, botHandler.SubjectTypePaginator())
 	bot.RegisterHandler(tgbotapi.HandlerTypeCallbackQueryData,
 		keyboard.PageVariantsPaginatorData, tgbotapi.MatchTypeContains, botHandler.VariantsPaginator())
 

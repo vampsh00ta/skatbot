@@ -32,8 +32,6 @@ func (h BotHandler) DownloadFile() tgbotapi.HandlerFunc {
 				h.log.Info().Str("Download", "ok").Str("variantId",
 					strconv.Itoa(variant.Id)).Msg(update.CallbackQuery.Sender.Username)
 
-				//h.download.AddWork(update.CallbackQuery.Message.Chat.ID, variant)
-
 			}
 
 		} else {

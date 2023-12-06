@@ -20,12 +20,12 @@ func (h BotHandler) GetSkatBeta() tgbotapi.HandlerFunc {
 		if err != nil {
 			h.log.Error().Str("GetSkatBeta", "error").Msg(err.Error())
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
-
+			return
 		}
 		kb := keyboard.InstituteNumsTest(insts, 1, keyboard.GetSkatInstituteCommand, keyboard.PageInstituteUniquePaginatorData)
 		h.fsm.SetKeyboard(update.CallbackQuery.Sender.ID, kb)
 
-		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
+		b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
 			ChatID:      update.CallbackQuery.Message.Chat.ID,
 			MessageID:   update.CallbackQuery.Message.ID,
 			ReplyMarkup: kb,
@@ -53,37 +53,24 @@ func (h BotHandler) GetSkatBetaInstitute() tgbotapi.HandlerFunc {
 		inst, err := strconv.Atoi(instituteStr)
 		if err != nil {
 			h.log.Error().Str("GetSkatBetaInstitute", "error").Msg(err.Error())
-
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
-
+			return
 		}
 		currSubject.InstistuteNum = inst
 
 		subjects, err := h.service.GetUniqueSubjects(ctx, inst, 0, "", true)
 		if err != nil {
 			h.log.Error().Str("GetSkatBetaInstitute", "error").Msg(err.Error())
-
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
-
-			b.UnregisterStepHandler(update.Message.From.ID)
 			return
 		}
 		kb := keyboard.SubjectNamesTest(subjects, 1, keyboard.GetSkatSubjectNameCommand, keyboard.PageSubjectNameUniquePaginatorData)
 		h.fsm.SetKeyboard(update.CallbackQuery.Sender.ID, kb)
-		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
+		b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
 			ChatID:      update.CallbackQuery.Message.Chat.ID,
 			MessageID:   update.CallbackQuery.Message.ID,
 			ReplyMarkup: kb,
 		})
-
-		if err != nil {
-			h.log.Error().Str("GetSkatBetaInstitute", "error").Msg(err.Error())
-
-			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
-			b.UnregisterStepHandler(update.CallbackQuery.Message.From.ID)
-
-			return
-		}
 
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
 		h.log.Info().Str("GetSkatBetaInstitute", "ok").Msg(update.CallbackQuery.Sender.Username)
@@ -109,26 +96,16 @@ func (h BotHandler) GetSkatBetaSubjectName() tgbotapi.HandlerFunc {
 		if err != nil {
 			h.log.Error().Str("GetSkatBetaSubjectName", "error").Msg(err.Error())
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
-			b.UnregisterStepHandler(update.CallbackQuery.Message.Chat.ID)
 			return
 		}
+
 		kb := keyboard.SemesterNumsTest(sems, 1, keyboard.GetSkatSemesterCommand, keyboard.PageSemesterUniquePaginatorData)
 		h.fsm.SetKeyboard(update.CallbackQuery.Sender.ID, kb)
-		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
-			ChatID:    update.CallbackQuery.Message.Chat.ID,
-			MessageID: update.CallbackQuery.Message.ID,
-
+		b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
+			ChatID:      update.CallbackQuery.Message.Chat.ID,
+			MessageID:   update.CallbackQuery.Message.ID,
 			ReplyMarkup: kb,
 		})
-
-		if err != nil {
-			h.log.Error().Str("GetSkatBetaSubjectName", "error").Msg(err.Error())
-
-			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
-			b.UnregisterStepHandler(update.Message.From.ID)
-
-			return
-		}
 
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
 		h.log.Info().Str("GetSkatBetaSubjectName", "ok").Msg(update.CallbackQuery.Sender.Username)
@@ -152,9 +129,7 @@ func (h BotHandler) GetSkatBetaSemester() tgbotapi.HandlerFunc {
 		sem, err := strconv.Atoi(semesterStr)
 		if err != nil {
 			h.log.Error().Str("GetSkatBetaSemester", "error").Msg(err.Error())
-
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
-			b.UnregisterStepHandler(update.CallbackQuery.Message.Chat.ID)
 			return
 		}
 		currSubject.Semester = sem
@@ -162,25 +137,18 @@ func (h BotHandler) GetSkatBetaSemester() tgbotapi.HandlerFunc {
 		subjectsTypes, err := h.service.GetUniqueSubjectTypes(ctx, currSubject.Name, currSubject.Semester, currSubject.InstistuteNum, true)
 		if err != nil {
 			h.log.Error().Str("GetSkatBetaSemester", "error").Msg(err.Error())
-
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 		}
 		kb := keyboard.SubjectTypesTest(subjectsTypes, 1, keyboard.GetSkatSubjectTypeCommand, keyboard.PageSubjectTypeUniquePaginatorData)
 		h.fsm.SetKeyboard(update.CallbackQuery.Sender.ID, kb)
-		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
+		b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
 			ChatID:    update.CallbackQuery.Message.Chat.ID,
 			MessageID: update.CallbackQuery.Message.ID,
 
 			ReplyMarkup: kb,
 		})
 
-		if err != nil {
-			h.log.Error().Str("GetSkatBetaSemester", "error").Msg(err.Error())
-
-			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
-			return
-		}
 		h.fsm.AddData(update.CallbackQuery.Message.Chat.ID, currSubject)
 		h.log.Info().Str("GetSkatBetaSemester", "ok").Msg(update.CallbackQuery.Sender.Username)
 
@@ -216,19 +184,13 @@ func (h BotHandler) GetSkatBetaSubjectType() tgbotapi.HandlerFunc {
 
 		}
 
-		_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+		b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 			ChatID: update.CallbackQuery.Message.Chat.ID,
 			Text:   "Доступные файлы",
 			ReplyMarkup: keyboard.VariantsWithDelete(variants,
 				update.CallbackQuery.Message.Chat.ID, 1, keyboard.DeleteSkatVariantCommand, keyboard.PageVariantsPaginatorData),
 		})
 
-		if err != nil {
-			h.log.Error().Str("GetSkatBetaSubjectType", "error").Msg(err.Error())
-
-			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
-			return
-		}
 		h.log.Info().Str("GetSkatBetaSubjectType", "ok").Msg(update.CallbackQuery.Sender.Username)
 
 	}

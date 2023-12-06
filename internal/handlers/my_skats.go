@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -18,23 +17,18 @@ func (h BotHandler) MySkats() tgbotapi.HandlerFunc {
 		userId := update.CallbackQuery.Sender.ID
 		variants, err := h.service.GetVariantbyTgid(ctx, strconv.Itoa(int(userId)))
 		if err != nil {
-			fmt.Println(err)
+			h.log.Error().Str("MySkats", "error").Msg(err.Error())
+			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 		}
 
 		kb := keyboard.MyVariantsWithDelete(variants, userId, 1, keyboard.DeleteMySkatVariantCommand, keyboard.PageMyVariantsPaginatorData)
 		h.fsm.SetKeyboard(update.CallbackQuery.Sender.ID, kb)
-		_, err = b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
+		b.EditMessageReplyMarkup(ctx, &tgbotapi.EditMessageReplyMarkupParams{
 			ChatID:      update.CallbackQuery.Message.Chat.ID,
 			MessageID:   update.CallbackQuery.Message.ID,
 			ReplyMarkup: kb,
 		})
-		if err != nil {
-			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
-				ChatID: update.CallbackQuery.Message.Chat.ID,
-				Text:   "Что-то пошло не так",
-			})
-		}
 
 	}
 }

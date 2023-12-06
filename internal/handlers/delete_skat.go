@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	tgbotapi "github.com/go-telegram/bot"
 	tgmodels "github.com/go-telegram/bot/models"
 	"skat_bot/internal/keyboard"
@@ -14,7 +13,7 @@ import (
 func (h BotHandler) DeleteSkat() tgbotapi.HandlerFunc {
 	return func(ctx context.Context, b *tgbotapi.Bot, update *tgmodels.Update) {
 		var err error
-		_, err = b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
+		b.AnswerCallbackQuery(ctx, &tgbotapi.AnswerCallbackQueryParams{
 			CallbackQueryID: update.CallbackQuery.ID,
 			ShowAlert:       false,
 		})
@@ -22,30 +21,31 @@ func (h BotHandler) DeleteSkat() tgbotapi.HandlerFunc {
 		splited := strings.Split(update.CallbackQuery.Data, "_")
 		variantUserId, err := strconv.Atoi(splited[1])
 		if err != nil {
-			fmt.Println(err)
+			h.log.Error().Str("DeleteSkat", "error").Msg(err.Error())
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 
 		}
 		variantId, err := strconv.Atoi(splited[2])
 		if err != nil {
+			h.log.Error().Str("DeleteSkat", "error").Msg(err.Error())
 
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 
 		}
 		if variantUserId != int(userId) {
-			fmt.Println(err)
 
-			_, err = b.SendMessage(ctx, &tgbotapi.SendMessageParams{
+			h.log.Error().Str("DeleteSkat", "error").Msg("no such variant to delete")
+
+			b.SendMessage(ctx, &tgbotapi.SendMessageParams{
 				ChatID: update.CallbackQuery.Message.Chat.ID,
 				Text:   "Ты не можешь удалить чужой вариант",
 			})
 			return
 		}
 		if err := h.service.DeleteVariantById(ctx, variantId); err != nil {
-			fmt.Println(err)
-
+			h.log.Error().Str("DeleteSkat", "error").Msg(err.Error())
 			SendError(ctx, b, update.CallbackQuery.Message.Chat.ID)
 			return
 
@@ -77,6 +77,8 @@ func (h BotHandler) DeleteSkat() tgbotapi.HandlerFunc {
 			ChatID: update.CallbackQuery.Message.Chat.ID,
 			Text:   "Вариант удален",
 		})
+		h.log.Info().Str("DeleteSkat", "ok").Str("variantId", strconv.Itoa(variantId)).
+			Msg(update.CallbackQuery.Sender.Username)
 
 	}
 }
