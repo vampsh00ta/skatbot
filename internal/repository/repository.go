@@ -10,6 +10,7 @@ type Repository interface {
 	Semester
 	Variant
 	Institute
+	Stats
 	WithTransaction(ctx context.Context, f func(ctx context.Context) error) error
 }
 

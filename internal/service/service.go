@@ -10,6 +10,7 @@ type Service interface {
 	Semester
 	Institute
 	Skat
+	Stats
 }
 type service struct {
 	rep rep.Repository

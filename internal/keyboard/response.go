@@ -23,6 +23,7 @@ func MyVariantsWithDelete(variants []models.Variant, id int64, page int, command
 			{
 				{Text: "Описание", CallbackData: "pass"},
 				{Text: "Вариант", CallbackData: "pass"},
+				{Text: "👍🏻", CallbackData: "likeaction_" + variants[0].TgId},
 				{Text: "Скачать файлы", CallbackData: DownloadVariant + "all_" + variants[0].TgId},
 				{Text: "Удалить файлы", CallbackData: "deleteAllVariants_" + variants[0].TgId},
 			},
@@ -66,6 +67,8 @@ func MyVariantsWithDelete(variants []models.Variant, id int64, page int, command
 			{
 				Text: ifNilNum(variant.Num), CallbackData: "pass",
 			},
+			{Text: "0", CallbackData: "likeaction_" + strconv.Itoa(variant.Id)},
+
 			{
 				Text: "⬇️", CallbackData: DownloadVariant + strconv.Itoa(variant.Id),
 			},

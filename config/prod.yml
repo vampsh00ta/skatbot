@@ -4,7 +4,7 @@ app:
 
 tg:
   apitoken: "6352576956:AAH1icJcTeDiTI7ppqTuSrXZ8QdQ_sZAGYU"
-  baseURL: "skatbot-production-3751.up.railway.app"
+  baseURL: "https://234a-95-24-66-154.ngrok-free.app"
 http:
   port: '8000'
 logger:

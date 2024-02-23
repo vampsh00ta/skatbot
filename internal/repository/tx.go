@@ -23,6 +23,7 @@ func (d Db) WithTransaction(ctx context.Context, f func(ctx context.Context) err
 
 func (d Db) queryRow(ctx context.Context, sql string, args ...any) pgx.Row {
 	tx, ok := ctx.Value("tx").(pgx.Tx)
+
 	if !ok {
 		return d.client.QueryRow(ctx, sql, args...)
 	}

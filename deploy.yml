@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: skatbot-pod
-          image:  op1umsh00ta/skatbot:latest
+          image:  vampsh00ta/skatbot:latest
           ports:
             - containerPort: 8000
 ---
@@ -56,4 +56,22 @@ spec:
       port: 8000
       targetPort: 8000
       protocol: TCP
-  type: LoadBalancer
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: skatbot-ingress
+spec:
+  ingressClassName: ingress
+  rules:
+    - host:  d96f-95-24-69-216.ngrok-free.app
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: skatbot-service
+                port:
+                  number: 8000

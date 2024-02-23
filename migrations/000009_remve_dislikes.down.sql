@@ -1,0 +1,1 @@
+alter table variant_likes add column if not exists d integer;

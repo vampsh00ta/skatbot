@@ -17,3 +17,10 @@ type Variant struct {
 
 	TgUsername string `json:"tg_username" db:"tg_username"`
 }
+
+type Stats struct {
+	VariantId int    `json:"variant_id" db:"variant_id"`
+	Likes     int    `json:"likes" db:"l"`
+	Dislikes  int    `json:"dislikes" db:"d"`
+	Username  string `json:"username" db:"username"`
+}
